@@ -1,13 +1,13 @@
-package com.plunger.kaikai;
+package com.plunger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class KaikaiApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(KaikaiApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 }

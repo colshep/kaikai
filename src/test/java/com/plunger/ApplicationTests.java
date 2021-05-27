@@ -1,10 +1,10 @@
-package com.plunger.kaikai;
+package com.plunger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class KaikaiApplicationTests {
+class ApplicationTests {
 
     @Test
     void contextLoads() {

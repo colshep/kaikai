@@ -1,0 +1,84 @@
+######################### springboot 个性化配置项 ########################
+server:
+  #指定服务端口
+  port: 9037
+  servlet:
+    #编码UTF-8
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+    #项目别名
+    context-path: /kaikai
+  tomcat:
+    uri-encoding: UTF-8
+  session:
+    # session超时时间，以秒为单位，默认最少一分钟
+    timeout: 600
+    # 不进行session过滤的请求路径
+    exclude-path:
+      list:
+        - '/css.*'
+        - '/js.*'
+        - '/img.*'
+
+spring:
+  application:
+    #应用名
+    name: kaikai
+  servlet:
+    multipart:
+      # 设置单个文件大小
+      max-file-size: 50MB
+      #设置单次请求文件的总大小
+      max-request-size: 50MB
+#  #默认就是hikari，可缺省
+#  datasource:
+#    #使用hikari连接池
+#    hikari:
+#      #默认30000ms，即30s
+#      connection-timeout: 30000
+#      #默认600000ms，即10min
+#      idle-timeout: 600000
+#      #连接池的最大尺寸（闲置连接+正在使用的连接），默认10
+#      maximum-pool-size: 200
+#      #最小空闲连接数，默认10
+#      minimum-idle: 50
+#    #多数据源配置
+#    plunger:
+#      type: com.zaxxer.hikari.HikariDataSource
+#      driver-class-name: com.mysql.cj.jdbc.Driver
+#      url: jdbc:mysql://localhost:3306/plunger?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+#      username: root
+#      password: root
+#    kaikai:
+#      type: com.zaxxer.hikari.HikariDataSource
+#      driver-class-name: com.mysql.cj.jdbc.Driver
+#      url: jdbc:mysql://localhost:3306/blhh?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+#      username: root
+#      password: root
+  #jsp配置
+  mvc:
+    view:
+      prefix: /jsp/
+      suffix: .jsp
+  # AOP配置
+  aop:
+    # 是否开启AOP,默认为true
+    auto: true
+    # 是否使用CGLIB
+    proxy-target-class: false
+  thymeleaf:
+    # 关闭缓存, 即时刷新
+    cache: false
+    # 关闭thymeleaf引擎
+    enabled: false
+#日志配置
+logging:
+  file:
+    name: /logs/kaikai.log
+  level:
+    #TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
+    root: INFO
+    com:
+      plunger: INFO
