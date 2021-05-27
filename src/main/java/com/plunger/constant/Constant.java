@@ -6,7 +6,7 @@ public class Constant {
      * 数据源
      */
     public static final class DATASOURCE {
-        public static final String CTECH = "ctech";
+        public static final String PLUNGER = "plunger";
     }
 
     public static final class DICT {
