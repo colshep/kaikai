@@ -39,29 +39,39 @@
             uploadUrl: "${basePath}/excel/upload",
             allowedFileExtensions: ['xlsx']
         });
+
+        $('#uploadFile').on('fileuploaded', function(event, data, previewId, index, fileId) {
+            const form = data.form, files = data.files, extra = data.extra,
+                response = data.response, reader = data.reader;
+            console.log('response=' + JSON.stringify(response));
+            if (response.code == 200) {
+                alert(response.data.msg);
+            }
+            // console.log('File uploaded triggered', fileId);
+        });
     })
 
     function submit() {
-        $.ajax({
-            async: false,
-            url: "${basePath}/excel/upload",
-            type: "post",
-            dataType: "json",
-            contentType: "application/json",
-            data: JSON.stringify({
-                projectUnid: "123"
-            }),
+        <%--$.ajax({--%>
+        <%--    async: false,--%>
+        <%--    url: "${basePath}/excel/upload",--%>
+        <%--    type: "post",--%>
+        <%--    dataType: "json",--%>
+        <%--    contentType: "application/json",--%>
+        <%--    data: JSON.stringify({--%>
+        <%--        projectUnid: "123"--%>
+        <%--    }),--%>
 
-            success: function (data, textStatus, jqXHR) {
-                alert(data.message);
-                if (data.code == "200") {
-                    $("#modalWin").modal("hide");
-                    refresh();
-                }
-            },
-            error: function (jqXHR, status, error) {
-                alert("通讯失败");
-            }
-        });
+        <%--    success: function (data, textStatus, jqXHR) {--%>
+        <%--        alert(data.message);--%>
+        <%--        if (data.code == "200") {--%>
+        <%--            $("#modalWin").modal("hide");--%>
+        <%--            refresh();--%>
+        <%--        }--%>
+        <%--    },--%>
+        <%--    error: function (jqXHR, status, error) {--%>
+        <%--        alert("通讯失败");--%>
+        <%--    }--%>
+        <%--});--%>
     }
 </script>

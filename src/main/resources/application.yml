@@ -82,10 +82,22 @@ logging:
     root: INFO
     com:
       plunger: INFO
+file-path:
+  uploadPath: upload/
+  resultPath: result/
+  resultFileName: result.xlsx
 excel:
   basic:
-
+    sheetName: 挖隐
+    printCellAddr: FW9
+    yuanCellAddr: GD9
+    fangCellAddr: GE9
+    jinCellAddr: GF9
+  data:
+    sheetName: 统计资料
   yuan:
+    sheetNames: 井素砼垫隐,井素砼垫隐 (2),井基筋安隐,井基筋安隐 (2)
   fang:
+    sheetNames: 井石垫隐,井石垫隐 (2)
   jin:
-
+    sheetNames: 井基砼隐,井基砼隐 (2)

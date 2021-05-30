@@ -1,22 +1,23 @@
 package com.plunger.service.impl;
 
 import com.plunger.api.CommonResult;
-import com.plunger.aspect.LogAspect;
+import com.plunger.config.excel.ExcelProperties;
+import com.plunger.constant.Constant;
 import com.plunger.service.ExcelService;
 import com.plunger.util.ExcelUtil;
 import com.plunger.util.FileUtil;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +28,9 @@ import java.util.List;
 
 @Service("excelService")
 public class ExcelServiceImpl implements ExcelService {
+
+    @Resource
+    ExcelProperties excelProperties;
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
@@ -49,13 +53,11 @@ public class ExcelServiceImpl implements ExcelService {
                 realFile.getParentFile().mkdirs();
             }
             uploadFile.transferTo(realFile);
-            resolve(realFile);
+            return resolve(realFile);
         } catch (IOException e) {
             e.printStackTrace();
             return CommonResult.failed("文件上传异常");
         }
-
-        return CommonResult.success();
     }
 
     public CommonResult resolve(File file) {
@@ -64,7 +66,7 @@ public class ExcelServiceImpl implements ExcelService {
                 file = new File("D:\\OneDrive\\Work\\kaikai\\templete.xlsx");
             }
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
-            XSSFSheet dataSheet = workbook.getSheet("统计资料");
+            XSSFSheet dataSheet = workbook.getSheet(Constant.EXCEL.DATA.SHEETNAME);
             int count = 0;
             for (int i = dataSheet.getLastRowNum() + 1; i >= 25; i--) {
                 String wellName = ExcelUtil.getCellValue(dataSheet, "C" + i);
@@ -84,14 +86,15 @@ public class ExcelServiceImpl implements ExcelService {
             }
 
             XSSFFormulaEvaluator evaluator;
-            XSSFSheet changeSheet = workbook.getSheet("挖隐");
-            XSSFCell printCell = ExcelUtil.getCell(changeSheet, "FW9");
-            XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, "GD9");
-            XSSFCell fangCell = ExcelUtil.getCell(changeSheet, "GE9");
-            XSSFCell jinCell = ExcelUtil.getCell(changeSheet, "GF9");
-            String[] sheetNameYuanArr = new String[]{"井素砼垫隐", "井素砼垫隐 (2)", "井基筋安隐", "井基筋安隐 (2)"};
-            String[] sheetNameFangArr = new String[]{"井石垫隐", "井石垫隐 (2)"};
-            String[] sheetNameJinArr = new String[]{"井基砼隐", "井基砼隐 (2)"};
+            excelProperties.getBasicProperties().getSheetName();
+            XSSFSheet changeSheet = workbook.getSheet(Constant.EXCEL.BASIC.SHEETNAME);
+            XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.PRINTCELLADDR);
+            XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.YUANCELLADDR);
+            XSSFCell fangCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.FANGCELLADDR);
+            XSSFCell jinCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.JINCELLADDR);
+            String[] sheetNameYuanArr = Constant.EXCEL.YUAN.SHEETNAMES.split(",");
+            String[] sheetNameFangArr = Constant.EXCEL.FANG.SHEETNAMES.split(",");
+            String[] sheetNameJinArr = Constant.EXCEL.JIN.SHEETNAMES.split(",");
             List<String> resultSheetNameList = new ArrayList<>();
 
             for (int i = 1; i <= count; i++) {
@@ -139,19 +142,26 @@ public class ExcelServiceImpl implements ExcelService {
 
             workbook.setActiveSheet(0);
             workbook.getSheetAt(0).showInPane(0, 0);
-            FileOutputStream out = new FileOutputStream("D:\\OneDrive\\Work\\kaikai\\result.xlsx");
+            String filePath = FileUtil.getResultFilePath();
+            String realFilePath = FileUtil.getAbsolutePath(filePath);
+            File realFile = new File(realFilePath);
+            if (!realFile.getParentFile().exists()) {
+                realFile.getParentFile().mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(realFilePath);
             workbook.write(out);
             out.close();
             workbook.close();
-
-            logger.info("复制成功，请查看结果");
-
+            JSONObject resultObj = new JSONObject();
+            String msg = "转化成功，请查看结果[" + realFilePath + "]";
+            resultObj.put("msg", msg);
+            logger.info(msg);
+            return CommonResult.success(resultObj);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);
             return CommonResult.failed("运行出错，请联系管理员");
         }
-        return CommonResult.success();
     }
 
     public static void main(String[] args) {
