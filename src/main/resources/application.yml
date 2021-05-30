@@ -82,3 +82,10 @@ logging:
     root: INFO
     com:
       plunger: INFO
+excel:
+  basic:
+
+  yuan:
+  fang:
+  jin:
+

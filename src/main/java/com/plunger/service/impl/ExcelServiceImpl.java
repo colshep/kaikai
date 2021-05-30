@@ -1,22 +1,34 @@
 package com.plunger.service.impl;
 
 import com.plunger.api.CommonResult;
+import com.plunger.aspect.LogAspect;
 import com.plunger.service.ExcelService;
 import com.plunger.util.ExcelUtil;
 import com.plunger.util.FileUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.formula.eval.NotImplementedFunctionException;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("excelService")
 public class ExcelServiceImpl implements ExcelService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
     @Override
     public CommonResult upload(MultipartFile uploadFile) {
@@ -52,79 +64,92 @@ public class ExcelServiceImpl implements ExcelService {
                 file = new File("D:\\OneDrive\\Work\\kaikai\\templete.xlsx");
             }
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
-
-            XSSFSheet sheet1 = workbook.getSheet("挖隐");
-            XSSFSheet sheet2 = workbook.getSheet("井石垫隐");
-            XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(workbook);
-
-            XSSFCell cellFW9 = ExcelUtil.getCell(sheet1, "FW9");
-            XSSFCell cellGD9 = ExcelUtil.getCell(sheet1, "GD9");
-            XSSFCell cellGE9 = ExcelUtil.getCell(sheet1, "GE9");
-            XSSFCell cellGF9 = ExcelUtil.getCell(sheet1, "GF9");
-            XSSFCell cellM27 = ExcelUtil.getCell(sheet2, "M27");
-
-            cellFW9.setCellValue(1);
-            evaluator = new XSSFFormulaEvaluator(workbook);
-            System.out.println("打印页码=" + cellFW9.getRawValue());
-            System.out.println("圆=" + evaluator.evaluate(cellGD9).getNumberValue());
-            System.out.println("方=" + evaluator.evaluate(cellGE9).getNumberValue());
-            System.out.println("无井=" + evaluator.evaluate(cellGF9).getNumberValue());
-            System.out.println("高程=" + evaluator.evaluate(cellM27).getNumberValue());
-
-            cellFW9.setCellValue(2);
-
-            try {
-                evaluator.evaluateAll();
-            } catch (NotImplementedFunctionException e) {
-                if (e.getFunctionName().equals("DISPIMG")) {
-
+            XSSFSheet dataSheet = workbook.getSheet("统计资料");
+            int count = 0;
+            for (int i = dataSheet.getLastRowNum() + 1; i >= 25; i--) {
+                String wellName = ExcelUtil.getCellValue(dataSheet, "C" + i);
+                if (!StringUtils.isEmpty(wellName)) {
+                    String indexName = ExcelUtil.getCellValue(dataSheet, "A" + i);
+                    if (!StringUtils.isEmpty(indexName)) {
+                        count = new Integer(indexName);
+                        break;
+                    }
                 }
             }
 
-            System.out.println("打印页码=" + cellFW9.getRawValue());
-            System.out.println("圆=" + evaluator.evaluate(cellGD9).getNumberValue());
-            System.out.println("方=" + evaluator.evaluate(cellGE9).getNumberValue());
-            System.out.println("无井=" + evaluator.evaluate(cellGF9).getNumberValue());
-            System.out.println("高程=" + evaluator.evaluate(cellM27).getNumberValue());
+            if (count == 0) {
+                return CommonResult.failed("未在[统计资料]sheet页找到有效组序");
+            } else {
+                logger.info("获取到" + count + "组数据，开始分析数据");
+            }
 
-//            XSSFSheet sheet = null;
-//            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {//获取每个Sheet表
-//                sheet = workbook.getSheetAt(i);
-//
-//                if ("挖隐".equals(sheet.getSheetName())) {
-//                    XSSFCell cell = ExcelUtil.getCell(sheet, "FW9");
-//                    System.out.println("打印页码=" + cell.getRawValue());
-//                    System.out.println("圆=" + ExcelUtil.getCell(sheet, "GD9").getRawValue());
-//                    System.out.println("方=" + ExcelUtil.getCell(sheet, "GE9").getRawValue());
-//                    System.out.println("无井=" + ExcelUtil.getCell(sheet, "GF9").getRawValue());
-//
-//
-//                    cell.setCellValue(1);
-//                    XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(cell.getSheet().getWorkbook());
-//                    evaluator.evaluate(cell);
-//                    CellValue v = evaluator.evaluate(ExcelUtil.getCell(sheet, "GD9"));
-//                    System.out.println("打印页码=" + cell.getRawValue());
-//                    System.out.println("圆=" + v);
-//                    System.out.println("方=" + ExcelUtil.getCell(sheet, "GE9").getRawValue());
-//                    System.out.println("无井=" + ExcelUtil.getCell(sheet, "GF9").getRawValue());
-//                }
-//
-//
-//                if ("井石垫隐".equals(sheet.getSheetName())) {
-//
-//                }
-//
-//                for (int j = 0; j < sheet.getPhysicalNumberOfRows(); j++) {//获取每行
-//                    XSSFRow row = sheet.getRow(j);
-//                    for (int k = 0; k < row.getPhysicalNumberOfCells(); k++) {//获取每个单元格
-//                        XSSFCell cell = row.getCell(k);
-//                        System.out.print(row.getCell(k) + "\t");
-//                    }
-//                    System.out.println("---Sheet表" + i + "处理完毕---");
-//                }
-//            }
-        } catch (IOException e) {
+            XSSFFormulaEvaluator evaluator;
+            XSSFSheet changeSheet = workbook.getSheet("挖隐");
+            XSSFCell printCell = ExcelUtil.getCell(changeSheet, "FW9");
+            XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, "GD9");
+            XSSFCell fangCell = ExcelUtil.getCell(changeSheet, "GE9");
+            XSSFCell jinCell = ExcelUtil.getCell(changeSheet, "GF9");
+            String[] sheetNameYuanArr = new String[]{"井素砼垫隐", "井素砼垫隐 (2)", "井基筋安隐", "井基筋安隐 (2)"};
+            String[] sheetNameFangArr = new String[]{"井石垫隐", "井石垫隐 (2)"};
+            String[] sheetNameJinArr = new String[]{"井基砼隐", "井基砼隐 (2)"};
+            List<String> resultSheetNameList = new ArrayList<>();
+
+            for (int i = 1; i <= count; i++) {
+                printCell.setCellValue(i);
+                evaluator = new XSSFFormulaEvaluator(workbook);
+                evaluator.evaluateAll();
+                int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
+                int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
+                int jinCount = new Double(jinCell.getNumericCellValue()).intValue();
+                logger.info("打印页码=" + i + "，圆=" + yuanCount + "，方=" + fangCount + "，井=" + jinCount);
+
+                if (yuanCount > 0) {
+                    for (String sheetName : sheetNameYuanArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if (fangCount > 0) {
+                    for (String sheetName : sheetNameFangArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if (jinCount > 0) {
+                    for (String sheetName : sheetNameJinArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+            }
+
+            int totalSheetNum = workbook.getNumberOfSheets();
+            for (int i = 0; i < totalSheetNum - resultSheetNameList.size(); i++) {
+                workbook.removeSheetAt(0);
+            }
+
+
+            workbook.setActiveSheet(0);
+            workbook.getSheetAt(0).showInPane(0, 0);
+            FileOutputStream out = new FileOutputStream("D:\\OneDrive\\Work\\kaikai\\result.xlsx");
+            workbook.write(out);
+            out.close();
+            workbook.close();
+
+            logger.info("复制成功，请查看结果");
+
+        } catch (Exception e) {
             e.printStackTrace();
+            logger.error("运行出错", e);
+            return CommonResult.failed("运行出错，请联系管理员");
         }
         return CommonResult.success();
     }
