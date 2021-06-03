@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ExcelService {
 
     CommonResult upload(MultipartFile uploadFile);
-
+    CommonResult resolve(JSONObject paramObj);
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +27,7 @@ public class FileUtil {
     }
 
     public static String getResultFilePath() {
-        return filePathProperties.getResultPath() + filePathProperties.getResultFileName();
+        return filePathProperties.getResultPath();
     }
 
     public static String getAbsolutePath(String path) {

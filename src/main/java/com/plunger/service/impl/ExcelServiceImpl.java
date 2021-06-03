@@ -53,17 +53,25 @@ public class ExcelServiceImpl implements ExcelService {
                 realFile.getParentFile().mkdirs();
             }
             uploadFile.transferTo(realFile);
-            return resolve(realFile);
+            JSONObject returnObj = new JSONObject();
+            returnObj.put("saveFileName", saveFileName);
+            logger.info("上传成功，文件保存在[" + realFilePath + "]");
+            return CommonResult.success(returnObj, "上传成功，开始转化...");
         } catch (IOException e) {
             e.printStackTrace();
             return CommonResult.failed("文件上传异常");
         }
     }
 
-    public CommonResult resolve(File file) {
+    @Override
+    public CommonResult resolve(JSONObject paramObj) {
         try {
+            String saveFileName = paramObj.optString("saveFileName");
+            String saveFilePath = FileUtil.getUploadPath() + saveFileName;
+            String saveRealFilePath = FileUtil.getAbsolutePath(saveFilePath);
+            File file = new File(saveRealFilePath);
             if (file == null) {
-                file = new File("D:\\OneDrive\\Work\\kaikai\\templete.xlsx");
+                return CommonResult.failed("未找到文件[" + saveFileName + "]");
             }
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
             XSSFSheet dataSheet = workbook.getSheet(Constant.EXCEL.DATA.SHEETNAME);
@@ -142,7 +150,7 @@ public class ExcelServiceImpl implements ExcelService {
 
             workbook.setActiveSheet(0);
             workbook.getSheetAt(0).showInPane(0, 0);
-            String filePath = FileUtil.getResultFilePath();
+            String filePath = FileUtil.getResultFilePath() + file.getName();
             String realFilePath = FileUtil.getAbsolutePath(filePath);
             File realFile = new File(realFilePath);
             if (!realFile.getParentFile().exists()) {
@@ -153,10 +161,9 @@ public class ExcelServiceImpl implements ExcelService {
             out.close();
             workbook.close();
             JSONObject resultObj = new JSONObject();
-            String msg = "转化成功，请查看结果[" + realFilePath + "]";
-            resultObj.put("msg", msg);
-            logger.info(msg);
-            return CommonResult.success(resultObj);
+            resultObj.put("resultFileName", file.getName());
+            logger.info("转化成功，结果保存在[" + realFilePath + "]");
+            return CommonResult.success(resultObj, "转化成功");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);
@@ -164,8 +171,5 @@ public class ExcelServiceImpl implements ExcelService {
         }
     }
 
-    public static void main(String[] args) {
-        ExcelServiceImpl service = new ExcelServiceImpl();
-        service.resolve(null);
-    }
+
 }

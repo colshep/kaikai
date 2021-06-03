@@ -9,7 +9,6 @@ public class FilePathProperties {
 
     private String uploadPath;
     private String resultPath;
-    private String resultFileName;
 
     public String getUploadPath() {
         return uploadPath;
@@ -27,11 +26,4 @@ public class FilePathProperties {
         this.resultPath = resultPath;
     }
 
-    public String getResultFileName() {
-        return resultFileName;
-    }
-
-    public void setResultFileName(String resultFileName) {
-        this.resultFileName = resultFileName;
-    }
 }

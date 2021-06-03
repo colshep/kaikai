@@ -85,7 +85,6 @@ logging:
 file-path:
   uploadPath: upload/
   resultPath: result/
-  resultFileName: result.xlsx
 excel:
   basic:
     sheetName: 挖隐
