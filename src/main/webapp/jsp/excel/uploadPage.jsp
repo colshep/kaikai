@@ -52,11 +52,11 @@
                 response = data.response, reader = data.reader;
             // console.log('response=' + JSON.stringify(response));
             $("#msg").html(response.message);
-            // if (response.code == 200) {
-            //     setTimeout(function() {
-            //         resolve(response.data.saveFileName);
-            //     },1000);
-            // }
+            if (response.code == 200) {
+                setTimeout(function() {
+                    resolve(response.data.saveFileName);
+                },1000);
+            }
             // console.log('File uploaded triggered', fileId);
         });
     })
