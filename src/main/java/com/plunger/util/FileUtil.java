@@ -1,6 +1,7 @@
 package com.plunger.util;
 
 import com.plunger.config.FilePathProperties;
+import com.plunger.constant.Constant;
 import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
 
@@ -15,19 +16,12 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class FileUtil {
 
-    private static FilePathProperties filePathProperties;
-
-    @Resource
-    public void setFilePathProperties(FilePathProperties filePathProperties) {
-        FileUtil.filePathProperties = filePathProperties;
-    }
-
     public static String getUploadPath() {
-        return filePathProperties.getUploadPath() + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd")) + "/";
+        return Constant.FILEPATH.UPLOADPATH + LocalDate.now().format(DateTimeFormatter.ofPattern("yyMMdd")) + "/";
     }
 
     public static String getResultFilePath() {
-        return filePathProperties.getResultPath();
+        return Constant.FILEPATH.RESULTPATH;
     }
 
     public static String getAbsolutePath(String path) {

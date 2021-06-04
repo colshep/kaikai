@@ -1,7 +1,6 @@
 package com.plunger.service.impl;
 
 import com.plunger.api.CommonResult;
-import com.plunger.config.excel.ExcelProperties;
 import com.plunger.constant.Constant;
 import com.plunger.service.ExcelService;
 import com.plunger.util.ExcelUtil;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,9 +26,6 @@ import java.util.List;
 
 @Service("excelService")
 public class ExcelServiceImpl implements ExcelService {
-
-    @Resource
-    ExcelProperties excelProperties;
 
     private static final Logger logger = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
@@ -94,7 +89,6 @@ public class ExcelServiceImpl implements ExcelService {
             }
 
             XSSFFormulaEvaluator evaluator;
-            excelProperties.getBasicProperties().getSheetName();
             XSSFSheet changeSheet = workbook.getSheet(Constant.EXCEL.BASIC.SHEETNAME);
             XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.PRINTCELLADDR);
             XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.YUANCELLADDR);
@@ -147,7 +141,6 @@ public class ExcelServiceImpl implements ExcelService {
                 workbook.removeSheetAt(0);
             }
 
-
             workbook.setActiveSheet(0);
             workbook.getSheetAt(0).showInPane(0, 0);
             String filePath = FileUtil.getResultFilePath() + file.getName();
@@ -163,7 +156,7 @@ public class ExcelServiceImpl implements ExcelService {
             JSONObject resultObj = new JSONObject();
             resultObj.put("resultFileName", file.getName());
             logger.info("转化成功，结果保存在[" + realFilePath + "]");
-            return CommonResult.success(resultObj, "转化成功");
+            return CommonResult.success(resultObj, "成功转化[" + count +"]组数据");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);

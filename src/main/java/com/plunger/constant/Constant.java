@@ -1,31 +1,58 @@
 package com.plunger.constant;
 
-import com.plunger.config.FilePathProperties;
-import com.plunger.config.excel.ExcelProperties;
+import com.plunger.service.DictService;
+import com.plunger.service.impl.ExcelServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 @Component
 public class Constant {
 
-    private static ExcelProperties excelProperties;
-    private static FilePathProperties filePathProperties;
+    private static final Logger logger = LoggerFactory.getLogger(Constant.class);
+
+    private static DictService dictService;
 
     @Resource
-    public void setExcelProperties(ExcelProperties excelProperties) {
-        Constant.excelProperties = excelProperties;
+    public void setDictService(DictService dictService) {
+        Constant.dictService = dictService;
     }
-    @Resource
-    public void setFilePathProperties(FilePathProperties filePathProperties) {
-        Constant.filePathProperties = filePathProperties;
+
+    @PostConstruct
+    public void init(){
+        try {
+            refresh();
+        } catch (Exception e) {
+            logger.error("加载配置文件失败，请联系管理员");
+            e.printStackTrace();
+        }
     }
+
+    public static void refresh() throws Exception {
+        FILEPATH.UPLOADPATH = dictService.findValueByTypeAndName("system", "uploadPath");
+        FILEPATH.RESULTPATH = dictService.findValueByTypeAndName("system", "resultPath");
+        EXCEL.BASIC.SHEETNAME = dictService.findValueByTypeAndName("excel-basic", "sheetName");
+        EXCEL.BASIC.PRINTCELLADDR = dictService.findValueByTypeAndName("excel-basic", "printCellAddr");
+        EXCEL.BASIC.YUANCELLADDR = dictService.findValueByTypeAndName("excel-basic", "yuanCellAddr");
+        EXCEL.BASIC.FANGCELLADDR = dictService.findValueByTypeAndName("excel-basic", "fangCellAddr");
+        EXCEL.BASIC.JINCELLADDR = dictService.findValueByTypeAndName("excel-basic", "jinCellAddr");
+        EXCEL.DATA.SHEETNAME = dictService.findValueByTypeAndName("excel-data", "sheetName");
+        EXCEL.YUAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-yuan", "sheetNames");
+        EXCEL.FANG.SHEETNAMES = dictService.findValueByTypeAndName("excel-fang", "sheetNames");
+        EXCEL.JIN.SHEETNAMES = dictService.findValueByTypeAndName("excel-jin", "sheetNames");
+    }
+
 
     /**
      * 数据源
      */
     public static final class DATASOURCE {
+        public static final String DEFAULT = "kaikai";
         public static final String PLUNGER = "plunger";
+        public static final String KAIKAI = "kaikai";
     }
 
     public static final class DICT {
@@ -33,34 +60,38 @@ public class Constant {
             public static final String STATE = "state";
             public static final String ROLE = "role";
             public static final String DEPT = "dept";
-            public static final String SOURCE = "source";
         }
     }
 
     public static final class EXCEL {
         public static final class BASIC {
-            public static final String SHEETNAME = excelProperties.getBasicProperties().getSheetName();
-            public static final String PRINTCELLADDR = excelProperties.getBasicProperties().getPrintCellAddr();
-            public static final String YUANCELLADDR = excelProperties.getBasicProperties().getYuanCellAddr();
-            public static final String FANGCELLADDR = excelProperties.getBasicProperties().getFangCellAddr();
-            public static final String JINCELLADDR = excelProperties.getBasicProperties().getJinCellAddr();
+            public static String SHEETNAME;
+            public static String PRINTCELLADDR;
+            public static String YUANCELLADDR;
+            public static String FANGCELLADDR;
+            public static String JINCELLADDR;
         }
 
         public static final class DATA {
-            public static final String SHEETNAME = excelProperties.getDataProperties().getSheetName();
+            public static String SHEETNAME;
         }
 
         public static final class YUAN {
-            public static final String SHEETNAMES = excelProperties.getYuanProperties().getSheetNames();
+            public static String SHEETNAMES;
         }
 
         public static final class FANG {
-            public static final String SHEETNAMES = excelProperties.getFangProperties().getSheetNames();
+            public static String SHEETNAMES;
         }
 
         public static final class JIN {
-            public static final String SHEETNAMES = excelProperties.getJinProperties().getSheetNames();
+            public static String SHEETNAMES;
         }
+    }
+
+    public static final class FILEPATH {
+        public static String UPLOADPATH;
+        public static String RESULTPATH;
     }
 
     /**

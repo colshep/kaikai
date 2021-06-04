@@ -32,31 +32,31 @@ spring:
       max-file-size: 50MB
       #设置单次请求文件的总大小
       max-request-size: 50MB
-#  #默认就是hikari，可缺省
-#  datasource:
-#    #使用hikari连接池
-#    hikari:
-#      #默认30000ms，即30s
-#      connection-timeout: 30000
-#      #默认600000ms，即10min
-#      idle-timeout: 600000
-#      #连接池的最大尺寸（闲置连接+正在使用的连接），默认10
-#      maximum-pool-size: 200
-#      #最小空闲连接数，默认10
-#      minimum-idle: 50
+  #默认就是hikari，可缺省
+  datasource:
+    #使用hikari连接池
+    hikari:
+      #默认30000ms，即30s
+      connection-timeout: 30000
+      #默认600000ms，即10min
+      idle-timeout: 600000
+      #连接池的最大尺寸（闲置连接+正在使用的连接），默认10
+      maximum-pool-size: 200
+      #最小空闲连接数，默认10
+      minimum-idle: 50
 #    #多数据源配置
-#    plunger:
-#      type: com.zaxxer.hikari.HikariDataSource
-#      driver-class-name: com.mysql.cj.jdbc.Driver
-#      url: jdbc:mysql://localhost:3306/plunger?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-#      username: root
-#      password: root
+    plunger:
+      type: com.zaxxer.hikari.HikariDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/plunger?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      username: root
+      password:
 #    kaikai:
 #      type: com.zaxxer.hikari.HikariDataSource
 #      driver-class-name: com.mysql.cj.jdbc.Driver
-#      url: jdbc:mysql://localhost:3306/blhh?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+#      url: jdbc:mysql://localhost:3306/kaikai?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
 #      username: root
-#      password: root
+#      password:
   #jsp配置
   mvc:
     view:
@@ -82,21 +82,21 @@ logging:
     root: INFO
     com:
       plunger: INFO
-file-path:
-  uploadPath: upload/
-  resultPath: result/
-excel:
-  basic:
-    sheetName: 挖隐
-    printCellAddr: FW9
-    yuanCellAddr: GD9
-    fangCellAddr: GE9
-    jinCellAddr: GF9
-  data:
-    sheetName: 统计资料
-  yuan:
-    sheetNames: 井素砼垫隐,井素砼垫隐 (2),井基筋安隐,井基筋安隐 (2)
-  fang:
-    sheetNames: 井石垫隐,井石垫隐 (2)
-  jin:
-    sheetNames: 井基砼隐,井基砼隐 (2)
+#file-path:
+#  uploadPath: upload/
+#  resultPath: result/
+#excel:
+#  basic:
+#    sheetName: 挖隐
+#    printCellAddr: FW9
+#    yuanCellAddr: GD9
+#    fangCellAddr: GE9
+#    jinCellAddr: GF9
+#  data:
+#    sheetName: 统计资料
+#  yuan:
+#    sheetNames: 井素砼垫隐,井素砼垫隐 (2),井基筋安隐,井基筋安隐 (2)
+#  fang:
+#    sheetNames: 井石垫隐,井石垫隐 (2)
+#  jin:
+#    sheetNames: 井基砼隐,井基砼隐 (2)

@@ -69,4 +69,5 @@ public class DictUtil {
     public static String getDeptName(String unid) {
         return getName(Constant.DICT.TYPE.DEPT, unid);
     }
+
 }

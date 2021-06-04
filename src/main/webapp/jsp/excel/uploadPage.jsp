@@ -77,7 +77,7 @@
                 if (data.code == "200") {
                     const resultFileName = data.data.resultFileName;
                     const fileUrl = "${basePath}/excel/download/" + resultFileName;
-                    $("#msg").html('转化成功，点击' + '<a href="#" onclick="downloadFile(\'' + fileUrl + '\')">此处</a>下载');
+                    $("#msg").append('<br>点击' + '<a href="#" onclick="downloadFile(\'' + fileUrl + '\')">此处</a>下载');
                     downloadFile(fileUrl)
                     // $("#modalWin").modal("hide");
                     // refresh();

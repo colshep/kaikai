@@ -2,6 +2,12 @@
 一些自定义公共样式
  */
 
+.required:before {
+    content: "*";
+    margin-right: 5px;
+    color: red;
+}
+
 /*table内容垂直居中*/
 .table tbody tr td {
     vertical-align: middle;

@@ -14,6 +14,7 @@
     <div>
         <h1>主页</h1>
         <a style="float:left" class="btn btn-outline-primary" role="button" onclick="openModal('${basePath}/excel/modal')">开始上传</a>
+        <a style="float:left" href="dict/list" class="btn btn-outline-primary" role="button">字典管理</a>
         <a style="float:right" href="login" class="btn btn-outline-dark" role="button">登录</a>
     </div>
     <img class="img-fluid" src="${imgPath}/cloud.jpg" alt="cloud">
