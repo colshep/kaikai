@@ -50,7 +50,7 @@ public class Constant {
      * 数据源
      */
     public static final class DATASOURCE {
-        public static final String DEFAULT = "kaikai";
+        public static final String DEFAULT = "plunger";
         public static final String PLUNGER = "plunger";
         public static final String KAIKAI = "kaikai";
     }
