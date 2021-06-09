@@ -83,7 +83,7 @@ public class ExcelServiceImpl implements ExcelService {
             }
 
             if (count == 0) {
-                return CommonResult.failed("未在[统计资料]sheet页找到有效组序");
+                return CommonResult.failed("未在[" + Constant.EXCEL.DATA.SHEETNAME + "]sheet页找到有效组序");
             } else {
                 logger.info("获取到" + count + "组数据，开始分析数据");
             }
