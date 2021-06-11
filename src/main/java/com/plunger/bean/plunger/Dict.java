@@ -6,6 +6,7 @@ public class Dict {
     private String type;
     private String name;
     private String value;
+    private String memo;
 
     public String getUnid() {
         return unid;
@@ -37,5 +38,13 @@ public class Dict {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

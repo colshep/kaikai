@@ -93,20 +93,45 @@ public class ExcelServiceImpl implements ExcelService {
             XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.PRINTCELLADDR);
             XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.YUANCELLADDR);
             XSSFCell fangCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.FANGCELLADDR);
-            XSSFCell jinCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.JINCELLADDR);
+            XSSFCell wujinCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.WUJINCELLADDR);
+            XSSFCell baoguanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.BAOGUANCELLADDR);
+            XSSFCell shuizhunCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.SHUIZHUNCELLADDR);
+            XSSFCell c15Cell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.C15CELLADDR);
+            XSSFCell c30Cell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.C30CELLADDR);
+            List<XSSFCell> cellList = new ArrayList<>();
+            String[] sheetNameWuTiaoJianArr = Constant.EXCEL.WUTIAOJIAN.SHEETNAMES.split(",");
             String[] sheetNameYuanArr = Constant.EXCEL.YUAN.SHEETNAMES.split(",");
             String[] sheetNameFangArr = Constant.EXCEL.FANG.SHEETNAMES.split(",");
-            String[] sheetNameJinArr = Constant.EXCEL.JIN.SHEETNAMES.split(",");
+            String[] sheetNameWuJinArr = Constant.EXCEL.WUJIN.SHEETNAMES.split(",");
+            String[] sheetNameBaoGuanArr = Constant.EXCEL.BAOGUAN.SHEETNAMES.split(",");
+            String[] sheetNameShuizhunArr = Constant.EXCEL.SHUIZHUN.SHEETNAMES.split(",");
+            String[] sheetNameC15Arr = Constant.EXCEL.C15.SHEETNAMES.split(",");
+            String[] sheetNameC30Arr = Constant.EXCEL.C30.SHEETNAMES.split(",");
             List<String> resultSheetNameList = new ArrayList<>();
+
+
 
             for (int i = 1; i <= count; i++) {
                 printCell.setCellValue(i);
                 evaluator = new XSSFFormulaEvaluator(workbook);
+//                evaluator.evaluateInCell(printCell);
                 evaluator.evaluateAll();
                 int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
                 int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
-                int jinCount = new Double(jinCell.getNumericCellValue()).intValue();
-                logger.info("打印页码=" + i + "，圆=" + yuanCount + "，方=" + fangCount + "，井=" + jinCount);
+                int wujinCount = new Double(wujinCell.getNumericCellValue()).intValue();
+                String baoguanFlag = baoguanCell.getStringCellValue();
+                int shuizhunCount = new Double(shuizhunCell.getNumericCellValue()).intValue();
+                String c15Flag = c15Cell.getStringCellValue();
+                String c30Flag = c30Cell.getStringCellValue();
+                logger.info("打印页码=" + i + "，圆=" + yuanCount + "，方=" + fangCount + "，无井=" + wujinCount +
+                        "，包管=" + baoguanFlag + "，水准=" + shuizhunCount + "，C15=" + c15Flag + "，C30=" + c30Flag);
+
+                for (String sheetName : sheetNameWuTiaoJianArr) {
+                    XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                    String newSheetName = "组" + i + sheetName;
+                    ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                    resultSheetNameList.add(newSheetName);
+                }
 
                 if (yuanCount > 0) {
                     for (String sheetName : sheetNameYuanArr) {
@@ -126,8 +151,44 @@ public class ExcelServiceImpl implements ExcelService {
                     }
                 }
 
-                if (jinCount > 0) {
-                    for (String sheetName : sheetNameJinArr) {
+                if (wujinCount > 0) {
+                    for (String sheetName : sheetNameWuJinArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if ("√".equals(baoguanFlag)) {
+                    for (String sheetName : sheetNameBaoGuanArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if (shuizhunCount > 8) {
+                    for (String sheetName : sheetNameShuizhunArr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if ("√".equals(c15Flag)) {
+                    for (String sheetName : sheetNameC15Arr) {
+                        XSSFSheet oldSheet = workbook.getSheet(sheetName);
+                        String newSheetName = "组" + i + sheetName;
+                        ExcelUtil.cloneSheet(oldSheet, newSheetName);
+                        resultSheetNameList.add(newSheetName);
+                    }
+                }
+
+                if ("√".equals(c30Flag)) {
+                    for (String sheetName : sheetNameC30Arr) {
                         XSSFSheet oldSheet = workbook.getSheet(sheetName);
                         String newSheetName = "组" + i + sheetName;
                         ExcelUtil.cloneSheet(oldSheet, newSheetName);

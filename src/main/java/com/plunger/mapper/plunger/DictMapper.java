@@ -20,10 +20,10 @@ public interface DictMapper {
     @Select("select * from dict where type = #{type}")
     List<Dict> findByType(@Param("type") String type);
 
-    @Insert("insert into dict(unid, type, name, value) values(#{unid}, #{type}, #{name}, #{value})")
+    @Insert("insert into dict(unid, type, name, value, memo) values(#{unid}, #{type}, #{name}, #{value}, #{memo})")
     int insert(Dict dict);
 
-    @Update("update dict set type=#{type},name=#{name},value=#{value} where unid=#{unid}")
+    @Update("update dict set type=#{type},name=#{name},value=#{value},memo=#{memo} where unid=#{unid}")
     void update(Dict dict);
 
     @Delete("delete from dict where unid = #{unid}")

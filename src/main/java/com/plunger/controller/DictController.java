@@ -70,21 +70,21 @@ public class DictController {
         // @RequestBody注解用来绑定通过http请求中application/json类型上传的数据
         // @RequestParam用来处理Content-Type: 为 application/x-www-form-urlencoded编码的内容
         dictMapper.insert(dict);
-        return CommonResult.success(dict);
+        return refreshCache();
     }
 
     @RequestMapping("/update")
     @ResponseBody
-    public CommonResult updateUser(Dict dict) {
+    public CommonResult update(Dict dict) {
         dictMapper.update(dict);
-        return CommonResult.success(dict);
+        return refreshCache();
     }
 
     @RequestMapping("/delete/{unid}")
     @ResponseBody
-    public CommonResult deleteUser(@PathVariable String unid) {
+    public CommonResult delete(@PathVariable String unid) {
         dictMapper.deleteByUnid(unid);
-        return CommonResult.success(unid);
+        return refreshCache();
     }
 
     @RequestMapping("/refreshCache")

@@ -30,6 +30,12 @@
                    value="${dict.value}">
             <div class="invalid-feedback"></div>
         </div>
+        <div class="form-group">
+            <label for="value">备注</label>
+            <input type="text" class="form-control" id="memo" name="memo" placeholder="备注"
+                   value="${dict.memo}">
+            <div class="invalid-feedback"></div>
+        </div>
     </form>
 </div>
 <div class="modal-footer">

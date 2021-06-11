@@ -38,11 +38,20 @@ public class Constant {
         EXCEL.BASIC.PRINTCELLADDR = dictService.findValueByTypeAndName("excel-basic", "printCellAddr");
         EXCEL.BASIC.YUANCELLADDR = dictService.findValueByTypeAndName("excel-basic", "yuanCellAddr");
         EXCEL.BASIC.FANGCELLADDR = dictService.findValueByTypeAndName("excel-basic", "fangCellAddr");
-        EXCEL.BASIC.JINCELLADDR = dictService.findValueByTypeAndName("excel-basic", "jinCellAddr");
+        EXCEL.BASIC.WUJINCELLADDR = dictService.findValueByTypeAndName("excel-basic", "wujinCellAddr");
+        EXCEL.BASIC.BAOGUANCELLADDR = dictService.findValueByTypeAndName("excel-basic", "baoguanCellAddr");
+        EXCEL.BASIC.SHUIZHUNCELLADDR = dictService.findValueByTypeAndName("excel-basic", "shuizhunCellAddr");
+        EXCEL.BASIC.C15CELLADDR = dictService.findValueByTypeAndName("excel-basic", "c15CellAddr");
+        EXCEL.BASIC.C30CELLADDR = dictService.findValueByTypeAndName("excel-basic", "c30CellAddr");
         EXCEL.DATA.SHEETNAME = dictService.findValueByTypeAndName("excel-data", "sheetName");
+        EXCEL.WUTIAOJIAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-wutiaojian", "sheetNames");
         EXCEL.YUAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-yuan", "sheetNames");
         EXCEL.FANG.SHEETNAMES = dictService.findValueByTypeAndName("excel-fang", "sheetNames");
-        EXCEL.JIN.SHEETNAMES = dictService.findValueByTypeAndName("excel-jin", "sheetNames");
+        EXCEL.WUJIN.SHEETNAMES = dictService.findValueByTypeAndName("excel-wujin", "sheetNames");
+        EXCEL.BAOGUAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-baoguan", "sheetNames");
+        EXCEL.SHUIZHUN.SHEETNAMES = dictService.findValueByTypeAndName("excel-shuizhun", "sheetNames");
+        EXCEL.C15.SHEETNAMES = dictService.findValueByTypeAndName("excel-c15", "sheetNames");
+        EXCEL.C30.SHEETNAMES = dictService.findValueByTypeAndName("excel-c30", "sheetNames");
     }
 
 
@@ -69,11 +78,19 @@ public class Constant {
             public static String PRINTCELLADDR;
             public static String YUANCELLADDR;
             public static String FANGCELLADDR;
-            public static String JINCELLADDR;
+            public static String WUJINCELLADDR;
+            public static String BAOGUANCELLADDR;
+            public static String SHUIZHUNCELLADDR;
+            public static String C15CELLADDR;
+            public static String C30CELLADDR;
         }
 
         public static final class DATA {
             public static String SHEETNAME;
+        }
+
+        public static final class WUTIAOJIAN {
+            public static String SHEETNAMES;
         }
 
         public static final class YUAN {
@@ -84,7 +101,23 @@ public class Constant {
             public static String SHEETNAMES;
         }
 
-        public static final class JIN {
+        public static final class WUJIN {
+            public static String SHEETNAMES;
+        }
+
+        public static final class BAOGUAN {
+            public static String SHEETNAMES;
+        }
+
+        public static final class SHUIZHUN {
+            public static String SHEETNAMES;
+        }
+
+        public static final class C15 {
+            public static String SHEETNAMES;
+        }
+
+        public static final class C30 {
             public static String SHEETNAMES;
         }
     }

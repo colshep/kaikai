@@ -22,20 +22,22 @@
     <table class="table table-hover">
         <thead class="thead-dark">
         <tr>
-            <th>唯一标识</th>
+<%--            <th>唯一标识</th>--%>
             <th>字典类型</th>
             <th>字典名称</th>
             <th>字典值</th>
+            <th>备注</th>
             <th>操作</th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${dictList}" var="item" varStatus="vs">
             <tr>
-                <td style="vertical-align: middle;">${item.unid}</td>
+<%--                <td style="vertical-align: middle;">${item.unid}</td>--%>
                 <td>${item.type}</td>
                 <td>${item.name}</td>
                 <td>${item.value}</td>
+                <td>${item.memo}</td>
                 <td>
                     <button type="button" class="btn btn-outline-dark btn-sm" data-target="#modalWin"
                             onclick="bindData('${item.unid}')">修改

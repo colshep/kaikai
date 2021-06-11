@@ -81,6 +81,8 @@
                     downloadFile(fileUrl)
                     // $("#modalWin").modal("hide");
                     // refresh();
+                } else {
+                    alert(data.message);
                 }
             },
             error: function (jqXHR, status, error) {
