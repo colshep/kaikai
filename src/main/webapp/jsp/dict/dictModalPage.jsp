@@ -26,8 +26,9 @@
         </div>
         <div class="form-group">
             <label for="value">字典值</label>
-            <input type="text" class="form-control required" id="value" name="value" placeholder="字典值"
-                   value="${dict.value}">
+            <textarea class="form-control required" rows="3" id="value" name="value">${dict.value}</textarea>
+<%--            <input type="text" class="form-control required" id="value" name="value" placeholder="字典值"--%>
+<%--                   value="${dict.value}">--%>
             <div class="invalid-feedback"></div>
         </div>
         <div class="form-group">

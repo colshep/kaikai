@@ -25,8 +25,8 @@
 <%--            <th>唯一标识</th>--%>
             <th>字典类型</th>
             <th>字典名称</th>
-            <th>字典值</th>
-            <th>备注</th>
+            <th width="400">字典值</th>
+            <th width="300">备注</th>
             <th>操作</th>
         </tr>
         </thead>
@@ -72,11 +72,12 @@
 
 <script type="text/javascript">
     // 模态窗口加载数据
-    function bindData(unid) {
+    function bindData(unid, width = 800) {
         $("#modalWin").modal({
             backdrop: 'static',     // 点击空白不关闭
             keyboard: false,        // 按键盘esc也不会关闭
         });
+        $("#modalWin").find(".modal-dialog").css("max-width", width + "px");
         $("#modalWin").find('.modal-content').load("modal/" + unid);
     }
 
