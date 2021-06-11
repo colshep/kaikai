@@ -126,48 +126,80 @@ public class ExcelServiceImpl implements ExcelService {
                 List<Integer> resultSheetIndexList = new ArrayList<>();
 
                 for (String sheetName : sheetNameWuTiaoJianArr) {
-                    resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                    int index = workbook.getSheetIndex(sheetName);
+                    if (index == -1) {
+                        return CommonResult.failed("无法在[sheetNameWuTiaoJianArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                    }
+                    resultSheetIndexList.add(index);
                 }
 
                 if (yuanCount > 0) {
                     for (String sheetName : sheetNameYuanArr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameYuanArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if (fangCount > 0) {
                     for (String sheetName : sheetNameFangArr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameFangArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if (wujinCount > 0) {
                     for (String sheetName : sheetNameWuJinArr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameWuJinArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if ("√".equals(baoguanFlag)) {
                     for (String sheetName : sheetNameBaoGuanArr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameBaoGuanArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if (shuizhunCount > 8) {
                     for (String sheetName : sheetNameShuizhunArr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameShuizhunArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if ("√".equals(c15Flag)) {
                     for (String sheetName : sheetNameC15Arr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameC15Arr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
                 if ("√".equals(c30Flag)) {
                     for (String sheetName : sheetNameC30Arr) {
-                        resultSheetIndexList.add(workbook.getSheetIndex(sheetName));
+                        int index = workbook.getSheetIndex(sheetName);
+                        if (index == -1) {
+                            return CommonResult.failed("无法在[sheetNameC30Arr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        }
+                        resultSheetIndexList.add(index);
                     }
                 }
 
