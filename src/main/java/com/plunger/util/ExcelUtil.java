@@ -51,13 +51,30 @@ public class ExcelUtil {
                         cell.setCellValue(cellValue.getNumberValue());
                     } else if (cellType == CellType.ERROR) {
                         cell.setCellValue("ERROR" + cellValue.getErrorValue());
-                        String msg = "解析公式失败,sheet=" + sheet.getSheetName() + ",rowIndex=" + i + 1 + ",colIndex=" + j + 1;
+                        String msg = "解析公式失败,sheet=" + newSheetName + ",rowIndex=" + (i + 1) + ",colIndex=" + (j + 1);
                         logger.error(msg);
-                        throw new Exception(msg);
+//                        throw new Exception(msg);
                     }
                 }
             }
         }
+
+        // 复制打印区域
+        String[] printAreaArr = workbook.getPrintArea(workbook.getSheetIndex(source)).split("!");
+        workbook.setPrintArea(workbook.getSheetIndex(sheet), printAreaArr[1]);
+
+        // 复制其他打印设置
+        clonePrintSetup(source, sheet);
+        if (sheet instanceof XSSFSheet) {
+            XSSFSheet xssfSheet = (XSSFSheet) sheet;
+            //After cloning the cloned sheet has relation to the same
+            //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
+            //This is wrong. So we need to repair.
+            ExcelUtil.repairCloningPrinterSettings(xssfSheet);
+        }
+
+        // 继承缩放
+//        sheet.getPrintSetup().setScale(source.getPrintSetup().getScale());
 
         workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
         sheet.setActiveCell(new CellAddress(0, 0));
@@ -358,11 +375,11 @@ public class ExcelUtil {
                 Method setMethod = propertyDescriptor.getWriteMethod();
                 if (setMethod != null && setMethod.getParameterTypes().length == 1) {
                     setMethod.invoke(clonePrintSetup, value);
-                    System.out.println(setMethod + ": " + value);
+//                    System.out.println(setMethod + ": " + value);
                 }
             }
         }
-        System.out.println("clonePrintSetup finish");
+//        System.out.println("clonePrintSetup finish");
     }
 
     public static void main(String[] args) {
