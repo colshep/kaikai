@@ -237,7 +237,7 @@ public class ExcelServiceImpl implements ExcelService {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);
-            return CommonResult.failed("运行出错，请联系管理员");
+            return CommonResult.failed("运行出错，请联系管理员。" + e.getMessage());
         }
     }
 

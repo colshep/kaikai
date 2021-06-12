@@ -50,7 +50,10 @@ public class ExcelUtil {
                     } else if (cellType == CellType.NUMERIC) {
                         cell.setCellValue(cellValue.getNumberValue());
                     } else if (cellType == CellType.ERROR) {
-                        cell.setCellValue(cellValue.getErrorValue());
+                        cell.setCellValue("ERROR" + cellValue.getErrorValue());
+                        String msg = "解析公式失败,sheet=" + sheet.getSheetName() + ",rowIndex=" + i + 1 + ",colIndex=" + j + 1;
+                        logger.error(msg);
+                        throw new Exception(msg);
                     }
                 }
             }
@@ -90,7 +93,7 @@ public class ExcelUtil {
 
         clonePrintSetup(sheet, newSheet);
         if (newSheet instanceof XSSFSheet) {
-            XSSFSheet xssfSheet = (XSSFSheet)newSheet;
+            XSSFSheet xssfSheet = (XSSFSheet) newSheet;
             //After cloning the cloned sheet has relation to the same
             //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
             //This is wrong. So we need to repair.
@@ -347,7 +350,7 @@ public class ExcelUtil {
     public static void clonePrintSetup(Sheet source, Sheet clone) throws Exception {
         PrintSetup sourcePrintSetup = source.getPrintSetup();
         PrintSetup clonePrintSetup = clone.getPrintSetup();
-        for(PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(PrintSetup.class).getPropertyDescriptors()) {
+        for (PropertyDescriptor propertyDescriptor : Introspector.getBeanInfo(PrintSetup.class).getPropertyDescriptors()) {
             Method getMethod = propertyDescriptor.getReadMethod();
             Object value = null;
             if (getMethod != null && getMethod.getParameterTypes().length == 0) {
