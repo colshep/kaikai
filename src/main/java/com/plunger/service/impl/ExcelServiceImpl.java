@@ -7,6 +7,7 @@ import com.plunger.util.ExcelUtil;
 import com.plunger.util.FileUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -114,6 +115,41 @@ public class ExcelServiceImpl implements ExcelService {
                 evaluator = new XSSFFormulaEvaluator(workbook);
 //                evaluator.evaluateInCell(printCell);
                 evaluator.evaluateAll();
+
+                // 对一些单元格做程序层面的运算处理
+                // 统计资料H11:H22过滤空白单元格后重新排列至I11:I22，取方井重新排列至J11:J22，取圆井重新排列至K11:K22
+                List<String> colIList = new ArrayList<>();
+                List<String> colJList = new ArrayList<>();
+                List<String> colKList = new ArrayList<>();
+                for (int j = 11; j <= 22; j++) {
+                    String value = ExcelUtil.getCellValue(dataSheet, "H" + j);
+                    if (!StringUtils.isEmpty(value)) {
+                        colIList.add(value);
+                        String name = ExcelUtil.getCellValue(dataSheet, "G" + j);
+                        if (name.contains("方井")) {
+                            colJList.add(value);
+                        } else if (name.contains("φ")) {
+                            colKList.add(value);
+                        }
+                    }
+                }
+                for (int j = 0; j < colIList.size(); j++) {
+                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "I" + (j + 11));
+                    cell.setCellType(CellType.STRING);
+                    cell.setCellValue(colIList.get(j));
+                }
+                for (int j = 0; j < colJList.size(); j++) {
+                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "J" + (j + 11));
+                    cell.setCellType(CellType.STRING);
+                    cell.setCellValue(colJList.get(j));
+                }
+                for (int j = 0; j < colKList.size(); j++) {
+                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "K" + (j + 11));
+                    cell.setCellType(CellType.STRING);
+                    cell.setCellValue(colKList.get(j));
+                }
+
+
                 int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
                 int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
                 int wujinCount = new Double(wujinCell.getNumericCellValue()).intValue();
@@ -128,7 +164,7 @@ public class ExcelServiceImpl implements ExcelService {
                 for (String sheetName : sheetNameWuTiaoJianArr) {
                     int index = workbook.getSheetIndex(sheetName);
                     if (index == -1) {
-                        return CommonResult.failed("无法在[sheetNameWuTiaoJianArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                        return CommonResult.failed("[sheetNameWuTiaoJianArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                     }
                     resultSheetIndexList.add(index);
                 }
@@ -137,7 +173,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameYuanArr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameYuanArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameYuanArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -147,7 +183,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameFangArr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameFangArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameFangArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -157,7 +193,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameWuJinArr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameWuJinArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameWuJinArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -167,7 +203,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameBaoGuanArr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameBaoGuanArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameBaoGuanArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -177,7 +213,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameShuizhunArr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameShuizhunArr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameShuizhunArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -187,7 +223,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameC15Arr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameC15Arr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameC15Arr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -197,7 +233,7 @@ public class ExcelServiceImpl implements ExcelService {
                     for (String sheetName : sheetNameC30Arr) {
                         int index = workbook.getSheetIndex(sheetName);
                         if (index == -1) {
-                            return CommonResult.failed("无法在[sheetNameC30Arr]找名为[" + sheetName + "]的sheet页,请检查配置");
+                            return CommonResult.failed("[sheetNameC30Arr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
                         }
                         resultSheetIndexList.add(index);
                     }
@@ -233,7 +269,7 @@ public class ExcelServiceImpl implements ExcelService {
             JSONObject resultObj = new JSONObject();
             resultObj.put("resultFileName", file.getName());
             logger.info("转化成功，结果保存在[" + realFilePath + "]");
-            return CommonResult.success(resultObj, "成功转化[" + count +"]组数据");
+            return CommonResult.success(resultObj, "成功转化[" + count + "]组数据");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);
