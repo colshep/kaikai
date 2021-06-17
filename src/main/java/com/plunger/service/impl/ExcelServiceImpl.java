@@ -116,53 +116,6 @@ public class ExcelServiceImpl implements ExcelService {
 //                evaluator.evaluateInCell(printCell);
                 evaluator.evaluateAll();
 
-                // 对一些单元格做程序层面的运算处理
-                // 统计资料H11:H22过滤空白单元格后重新排列至I11:I22，取方井重新排列至J11:J22，取圆井重新排列至K11:K22
-//                List<String> colIList = new ArrayList<>();
-//                List<String> colJList = new ArrayList<>();
-//                List<String> colKList = new ArrayList<>();
-//                for (int j = 11; j <= 22; j++) {
-//                    String value = ExcelUtil.getCellValue(dataSheet, "H" + j);
-//                    if (!StringUtils.isEmpty(value)) {
-//                        colIList.add(value);
-//                        String name = ExcelUtil.getCellValue(dataSheet, "G" + j);
-//                        if (name.contains("方井")) {
-//                            colJList.add(value);
-//                        } else if (name.contains("φ")) {
-//                            colKList.add(value);
-//                        }
-//                    }
-//                }
-//                for (int j = 0; j <= 12; j++) {
-//                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "I" + (j + 11));
-//                    cell.setCellType(CellType.STRING);
-//                    cell.setCellValue(colIList.size() < j ? "" : colIList.get(j));
-//
-//                    cell = ExcelUtil.getCell(dataSheet, "J" + (j + 11));
-//                    cell.setCellType(CellType.STRING);
-//                    cell.setCellValue(colJList.size() < j ? "" : colJList.get(j));
-//
-//                    cell = ExcelUtil.getCell(dataSheet, "K" + (j + 11));
-//                    cell.setCellType(CellType.STRING);
-//                    cell.setCellValue(colKList.size() < j ? "" : colKList.get(j));
-//                }
-//
-//                // 标高V7:V18过滤空白单元格后重新排列至W7:W18
-//                XSSFSheet biaogaoSheet = workbook.getSheet("标高");
-//                List<String> colVList = new ArrayList<>();
-//                if (biaogaoSheet != null) {
-//                    for (int j = 0; j <= 12; j++) {
-//                        String value = ExcelUtil.getCellValue(biaogaoSheet, "V" + (j + 7));
-//                        if (!StringUtils.isEmpty(value)) {
-//                            colVList.add(value);
-//                        }
-//                    }
-//                    for (int j = 0; j <= 12; j++) {
-//                        XSSFCell cell = ExcelUtil.getCell(biaogaoSheet, "W" + (j + 7));
-//                        cell.setCellType(CellType.STRING);
-//                        cell.setCellValue(colVList.size() < j ? "" : colVList.get(j));
-//                    }
-//                }
 
                 int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
                 int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
@@ -267,6 +220,27 @@ public class ExcelServiceImpl implements ExcelService {
             for (int i = 0; i < originalSheetNum; i++) {
                 workbook.removeSheetAt(0);
             }
+
+            // 按照各组(浇筑记录C15,浇筑记录C30),各组(旁站记录C15,旁站记录C30),各组其他sheet页的顺序对sheet页分类排序
+            int sheetNum = workbook.getNumberOfSheets();
+            List<String> sortedSheetNameList = new ArrayList<>();
+            for (int i = 0; i < sheetNum; i++) {
+                String sheetName = workbook.getSheetAt(i).getSheetName();
+                if (sheetName.contains("浇筑记录")) {
+                    sortedSheetNameList.add(sheetName);
+                }
+            }
+            for (int i = 0; i < sheetNum; i++) {
+                String sheetName = workbook.getSheetAt(i).getSheetName();
+                if (sheetName.contains("旁站记录")) {
+                    sortedSheetNameList.add(sheetName);
+                }
+            }
+            for (int i = 0; i < sortedSheetNameList.size(); i++) {
+                String sheetName = sortedSheetNameList.get(i);
+                workbook.setSheetOrder(sheetName, i);
+            }
+
 
             workbook.setActiveSheet(0);
             workbook.getSheetAt(0).showInPane(0, 0);
