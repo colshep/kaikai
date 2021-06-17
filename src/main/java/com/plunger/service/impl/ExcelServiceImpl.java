@@ -221,7 +221,7 @@ public class ExcelServiceImpl implements ExcelService {
                 workbook.removeSheetAt(0);
             }
 
-            // 按照各组(浇筑记录C15,浇筑记录C30),各组(旁站记录C15,旁站记录C30),各组其他sheet页的顺序对sheet页分类排序
+            // 按照各组(浇筑记录C15,浇筑记录C30),各组(旁站记录C15,旁站记录C30),各组挖准,各组其他sheet页的顺序对sheet页分类排序
             int sheetNum = workbook.getNumberOfSheets();
             List<String> sortedSheetNameList = new ArrayList<>();
             for (int i = 0; i < sheetNum; i++) {
@@ -233,6 +233,12 @@ public class ExcelServiceImpl implements ExcelService {
             for (int i = 0; i < sheetNum; i++) {
                 String sheetName = workbook.getSheetAt(i).getSheetName();
                 if (sheetName.contains("旁站记录")) {
+                    sortedSheetNameList.add(sheetName);
+                }
+            }
+            for (int i = 0; i < sheetNum; i++) {
+                String sheetName = workbook.getSheetAt(i).getSheetName();
+                if (sheetName.contains("挖准")) {
                     sortedSheetNameList.add(sheetName);
                 }
             }
