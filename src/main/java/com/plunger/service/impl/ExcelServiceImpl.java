@@ -149,6 +149,24 @@ public class ExcelServiceImpl implements ExcelService {
                     cell.setCellValue(colKList.get(j));
                 }
 
+                // 标高V7:V18过滤空白单元格后重新排列至W7:W18
+                XSSFSheet biaogaoSheet = workbook.getSheet("标高");
+                if (biaogaoSheet != null) {
+                    List<String> colVList = new ArrayList<>();
+                    for (int j = 7; j <= 18; j++) {
+                        String value = ExcelUtil.getCellValue(biaogaoSheet, "V" + j);
+                        if (!StringUtils.isEmpty(value)) {
+                            colVList.add(value);
+                        }
+                    }
+                    for (int i1 = 0; i1 < colVList.size(); i1++) {
+                        XSSFCell cell = ExcelUtil.getCell(biaogaoSheet, "W" + (i1 + 7));
+                        cell.setCellType(CellType.STRING);
+                        cell.setCellValue(colVList.get(i1));
+                    }
+                }
+
+
 
                 int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
                 int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
