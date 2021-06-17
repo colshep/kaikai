@@ -118,55 +118,51 @@ public class ExcelServiceImpl implements ExcelService {
 
                 // 对一些单元格做程序层面的运算处理
                 // 统计资料H11:H22过滤空白单元格后重新排列至I11:I22，取方井重新排列至J11:J22，取圆井重新排列至K11:K22
-                List<String> colIList = new ArrayList<>();
-                List<String> colJList = new ArrayList<>();
-                List<String> colKList = new ArrayList<>();
-                for (int j = 11; j <= 22; j++) {
-                    String value = ExcelUtil.getCellValue(dataSheet, "H" + j);
-                    if (!StringUtils.isEmpty(value)) {
-                        colIList.add(value);
-                        String name = ExcelUtil.getCellValue(dataSheet, "G" + j);
-                        if (name.contains("方井")) {
-                            colJList.add(value);
-                        } else if (name.contains("φ")) {
-                            colKList.add(value);
-                        }
-                    }
-                }
-                for (int j = 0; j < colIList.size(); j++) {
-                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "I" + (j + 11));
-                    cell.setCellType(CellType.STRING);
-                    cell.setCellValue(colIList.get(j));
-                }
-                for (int j = 0; j < colJList.size(); j++) {
-                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "J" + (j + 11));
-                    cell.setCellType(CellType.STRING);
-                    cell.setCellValue(colJList.get(j));
-                }
-                for (int j = 0; j < colKList.size(); j++) {
-                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "K" + (j + 11));
-                    cell.setCellType(CellType.STRING);
-                    cell.setCellValue(colKList.get(j));
-                }
-
-                // 标高V7:V18过滤空白单元格后重新排列至W7:W18
-                XSSFSheet biaogaoSheet = workbook.getSheet("标高");
-                if (biaogaoSheet != null) {
-                    List<String> colVList = new ArrayList<>();
-                    for (int j = 7; j <= 18; j++) {
-                        String value = ExcelUtil.getCellValue(biaogaoSheet, "V" + j);
-                        if (!StringUtils.isEmpty(value)) {
-                            colVList.add(value);
-                        }
-                    }
-                    for (int i1 = 0; i1 < colVList.size(); i1++) {
-                        XSSFCell cell = ExcelUtil.getCell(biaogaoSheet, "W" + (i1 + 7));
-                        cell.setCellType(CellType.STRING);
-                        cell.setCellValue(colVList.get(i1));
-                    }
-                }
-
-
+//                List<String> colIList = new ArrayList<>();
+//                List<String> colJList = new ArrayList<>();
+//                List<String> colKList = new ArrayList<>();
+//                for (int j = 11; j <= 22; j++) {
+//                    String value = ExcelUtil.getCellValue(dataSheet, "H" + j);
+//                    if (!StringUtils.isEmpty(value)) {
+//                        colIList.add(value);
+//                        String name = ExcelUtil.getCellValue(dataSheet, "G" + j);
+//                        if (name.contains("方井")) {
+//                            colJList.add(value);
+//                        } else if (name.contains("φ")) {
+//                            colKList.add(value);
+//                        }
+//                    }
+//                }
+//                for (int j = 0; j <= 12; j++) {
+//                    XSSFCell cell = ExcelUtil.getCell(dataSheet, "I" + (j + 11));
+//                    cell.setCellType(CellType.STRING);
+//                    cell.setCellValue(colIList.size() < j ? "" : colIList.get(j));
+//
+//                    cell = ExcelUtil.getCell(dataSheet, "J" + (j + 11));
+//                    cell.setCellType(CellType.STRING);
+//                    cell.setCellValue(colJList.size() < j ? "" : colJList.get(j));
+//
+//                    cell = ExcelUtil.getCell(dataSheet, "K" + (j + 11));
+//                    cell.setCellType(CellType.STRING);
+//                    cell.setCellValue(colKList.size() < j ? "" : colKList.get(j));
+//                }
+//
+//                // 标高V7:V18过滤空白单元格后重新排列至W7:W18
+//                XSSFSheet biaogaoSheet = workbook.getSheet("标高");
+//                List<String> colVList = new ArrayList<>();
+//                if (biaogaoSheet != null) {
+//                    for (int j = 0; j <= 12; j++) {
+//                        String value = ExcelUtil.getCellValue(biaogaoSheet, "V" + (j + 7));
+//                        if (!StringUtils.isEmpty(value)) {
+//                            colVList.add(value);
+//                        }
+//                    }
+//                    for (int j = 0; j <= 12; j++) {
+//                        XSSFCell cell = ExcelUtil.getCell(biaogaoSheet, "W" + (j + 7));
+//                        cell.setCellType(CellType.STRING);
+//                        cell.setCellValue(colVList.size() < j ? "" : colVList.get(j));
+//                    }
+//                }
 
                 int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
                 int fangCount = new Double(fangCell.getNumericCellValue()).intValue();

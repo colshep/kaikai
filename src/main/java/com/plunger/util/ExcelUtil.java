@@ -60,138 +60,135 @@ public class ExcelUtil {
         }
 
         // 复制打印区域
-//        String[] printAreaArr = workbook.getPrintArea(workbook.getSheetIndex(source)).split("!");
-//        workbook.setPrintArea(workbook.getSheetIndex(sheet), printAreaArr[1]);
-//
-//        // 复制其他打印设置
-//        clonePrintSetup(source, sheet);
-//        if (sheet instanceof XSSFSheet) {
-//            XSSFSheet xssfSheet = (XSSFSheet) sheet;
-//            //After cloning the cloned sheet has relation to the same
-//            //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
-//            //This is wrong. So we need to repair.
-//            ExcelUtil.repairCloningPrinterSettings(xssfSheet);
-//        }
+        String[] printAreaArr = workbook.getPrintArea(workbook.getSheetIndex(source)).split("!");
+        workbook.setPrintArea(workbook.getSheetIndex(sheet), printAreaArr[1]);
 
-        // 继承缩放
-//        sheet.getPrintSetup().setScale(source.getPrintSetup().getScale());
-
-        workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
-        sheet.setActiveCell(new CellAddress(0, 0));
-    }
-
-    public static void copySheets(XSSFSheet newSheet, XSSFSheet sheet, boolean copyStyle) throws Exception {
-        int maxColumnNum = 0;
-        List<CellRangeAddress> mergedRegions = new ArrayList<>();
-        Map<Integer, CellStyle> styleMap = (copyStyle) ? new HashMap<>() : null;
-        for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {
-            XSSFRow srcRow = sheet.getRow(i);
-            XSSFRow destRow = newSheet.createRow(i);
-            if (srcRow != null) {
-                copyRow(sheet, newSheet, srcRow, destRow, styleMap, mergedRegions);
-                if (srcRow.getLastCellNum() > maxColumnNum) {
-                    maxColumnNum = srcRow.getLastCellNum();
-                }
-            }
-        }
-        for (int i = 0; i <= maxColumnNum; i++) {    //设置列宽
-            newSheet.setColumnWidth(i, sheet.getColumnWidth(i));
-        }
-        newSheet.setTabColor(sheet.getTabColor());
-
-        int oldSheetIndex = sheet.getWorkbook().getSheetIndex(sheet.getSheetName());
-        int newSheetIndex = newSheet.getWorkbook().getSheetIndex(newSheet.getSheetName());
-
-        String[] printAreaArr = sheet.getWorkbook().getPrintArea(oldSheetIndex).split("!");
-        newSheet.getWorkbook().setPrintArea(newSheetIndex, printAreaArr[1]);
-
-        XSSFPrintSetup oldPrintSetup = sheet.getPrintSetup();
-        XSSFPrintSetup newPrintSetup = sheet.getPrintSetup();
-
-        clonePrintSetup(sheet, newSheet);
-        if (newSheet instanceof XSSFSheet) {
-            XSSFSheet xssfSheet = (XSSFSheet) newSheet;
+        // 复制其他打印设置
+        clonePrintSetup(source, sheet);
+        if (sheet instanceof XSSFSheet) {
+            XSSFSheet xssfSheet = (XSSFSheet) sheet;
             //After cloning the cloned sheet has relation to the same
             //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
             //This is wrong. So we need to repair.
             ExcelUtil.repairCloningPrinterSettings(xssfSheet);
         }
 
+        workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
+        sheet.setActiveCell(new CellAddress(0, 0));
     }
 
-    public static void copyRow(XSSFSheet srcSheet, XSSFSheet destSheet, XSSFRow srcRow, XSSFRow destRow,
-                               Map<Integer, CellStyle> styleMap, List<CellRangeAddress> mergedRegions) {
-        destRow.setHeight(srcRow.getHeight());
-        int deltaRows = destRow.getRowNum() - srcRow.getRowNum(); //如果copy到另一个sheet的起始行数不同
-        for (int j = srcRow.getFirstCellNum(); j <= srcRow.getLastCellNum(); j++) {
-            XSSFCell oldCell = srcRow.getCell(j); // old cell
-            XSSFCell newCell = destRow.getCell(j); // new cell
-            if (oldCell != null) {
-                if (newCell == null) {
-                    newCell = destRow.createCell(j);
-                }
-                copyCell(oldCell, newCell, styleMap);
-                CellRangeAddress mergedRegion = getMergedRegion(srcSheet, srcRow.getRowNum(), (short) oldCell.getColumnIndex());
-                if (mergedRegion != null) {
-                    CellRangeAddress newMergedRegion = new CellRangeAddress(
-                            mergedRegion.getFirstRow() + deltaRows,
-                            mergedRegion.getLastRow() + deltaRows,
-                            mergedRegion.getFirstColumn(),
-                            mergedRegion.getLastColumn());
-                    if (isNewMergedRegion(newMergedRegion, mergedRegions)) {
-                        mergedRegions.add(newMergedRegion);
-                        destSheet.addMergedRegion(newMergedRegion);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 把原来的Sheet中cell（列）的样式和数据类型复制到新的sheet的cell（列）中
-     *
-     * @param oldCell
-     * @param newCell
-     * @param styleMap
-     */
-    public static void copyCell(XSSFCell oldCell, XSSFCell newCell, Map<Integer, CellStyle> styleMap) {
-        if (styleMap != null) {
-            if (oldCell.getSheet().getWorkbook() == newCell.getSheet().getWorkbook()) {
-                newCell.setCellStyle(oldCell.getCellStyle());
-            } else {
-                int stHashCode = oldCell.getCellStyle().hashCode();
-                CellStyle newCellStyle = styleMap.get(stHashCode);
-                if (newCellStyle == null) {
-                    newCellStyle = newCell.getSheet().getWorkbook().createCellStyle();
-                    newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
-                    styleMap.put(stHashCode, newCellStyle);
-                }
-                newCell.setCellStyle(newCellStyle);
-            }
-        }
-        newCell.setCellValue(getCellValue(oldCell));
-    }
-
-    // 获取merge对象
-    public static CellRangeAddress getMergedRegion(XSSFSheet sheet, int rowNum, short cellNum) {
-        for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
-            CellRangeAddress merged = sheet.getMergedRegion(i);
-            if (merged.isInRange(rowNum, cellNum)) {
-                return merged;
-            }
-        }
-        return null;
-    }
-
-    private static boolean isNewMergedRegion(CellRangeAddress newMergedRegion, List<CellRangeAddress> mergedRegions) {
-        for (int i = 0; i < mergedRegions.size(); i++) {
-            CellRangeAddress oldMergedRegion = mergedRegions.get(i);
-            if (oldMergedRegion.getFirstRow() == newMergedRegion.getFirstRow() && oldMergedRegion.getFirstColumn() == newMergedRegion.getFirstColumn()) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    public static void copySheets(XSSFSheet newSheet, XSSFSheet sheet, boolean copyStyle) throws Exception {
+//        int maxColumnNum = 0;
+//        List<CellRangeAddress> mergedRegions = new ArrayList<>();
+//        Map<Integer, CellStyle> styleMap = (copyStyle) ? new HashMap<>() : null;
+//        for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {
+//            XSSFRow srcRow = sheet.getRow(i);
+//            XSSFRow destRow = newSheet.createRow(i);
+//            if (srcRow != null) {
+//                copyRow(sheet, newSheet, srcRow, destRow, styleMap, mergedRegions);
+//                if (srcRow.getLastCellNum() > maxColumnNum) {
+//                    maxColumnNum = srcRow.getLastCellNum();
+//                }
+//            }
+//        }
+//        for (int i = 0; i <= maxColumnNum; i++) {    //设置列宽
+//            newSheet.setColumnWidth(i, sheet.getColumnWidth(i));
+//        }
+//        newSheet.setTabColor(sheet.getTabColor());
+//
+//        int oldSheetIndex = sheet.getWorkbook().getSheetIndex(sheet.getSheetName());
+//        int newSheetIndex = newSheet.getWorkbook().getSheetIndex(newSheet.getSheetName());
+//
+//        String[] printAreaArr = sheet.getWorkbook().getPrintArea(oldSheetIndex).split("!");
+//        newSheet.getWorkbook().setPrintArea(newSheetIndex, printAreaArr[1]);
+//
+//        XSSFPrintSetup oldPrintSetup = sheet.getPrintSetup();
+//        XSSFPrintSetup newPrintSetup = sheet.getPrintSetup();
+//
+//        clonePrintSetup(sheet, newSheet);
+//        if (newSheet instanceof XSSFSheet) {
+//            XSSFSheet xssfSheet = (XSSFSheet) newSheet;
+//            //After cloning the cloned sheet has relation to the same
+//            //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
+//            //This is wrong. So we need to repair.
+//            ExcelUtil.repairCloningPrinterSettings(xssfSheet);
+//        }
+//
+//    }
+//
+//    public static void copyRow(XSSFSheet srcSheet, XSSFSheet destSheet, XSSFRow srcRow, XSSFRow destRow,
+//                               Map<Integer, CellStyle> styleMap, List<CellRangeAddress> mergedRegions) {
+//        destRow.setHeight(srcRow.getHeight());
+//        int deltaRows = destRow.getRowNum() - srcRow.getRowNum(); //如果copy到另一个sheet的起始行数不同
+//        for (int j = srcRow.getFirstCellNum(); j <= srcRow.getLastCellNum(); j++) {
+//            XSSFCell oldCell = srcRow.getCell(j); // old cell
+//            XSSFCell newCell = destRow.getCell(j); // new cell
+//            if (oldCell != null) {
+//                if (newCell == null) {
+//                    newCell = destRow.createCell(j);
+//                }
+//                copyCell(oldCell, newCell, styleMap);
+//                CellRangeAddress mergedRegion = getMergedRegion(srcSheet, srcRow.getRowNum(), (short) oldCell.getColumnIndex());
+//                if (mergedRegion != null) {
+//                    CellRangeAddress newMergedRegion = new CellRangeAddress(
+//                            mergedRegion.getFirstRow() + deltaRows,
+//                            mergedRegion.getLastRow() + deltaRows,
+//                            mergedRegion.getFirstColumn(),
+//                            mergedRegion.getLastColumn());
+//                    if (isNewMergedRegion(newMergedRegion, mergedRegions)) {
+//                        mergedRegions.add(newMergedRegion);
+//                        destSheet.addMergedRegion(newMergedRegion);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    /**
+//     * 把原来的Sheet中cell（列）的样式和数据类型复制到新的sheet的cell（列）中
+//     *
+//     * @param oldCell
+//     * @param newCell
+//     * @param styleMap
+//     */
+//    public static void copyCell(XSSFCell oldCell, XSSFCell newCell, Map<Integer, CellStyle> styleMap) {
+//        if (styleMap != null) {
+//            if (oldCell.getSheet().getWorkbook() == newCell.getSheet().getWorkbook()) {
+//                newCell.setCellStyle(oldCell.getCellStyle());
+//            } else {
+//                int stHashCode = oldCell.getCellStyle().hashCode();
+//                CellStyle newCellStyle = styleMap.get(stHashCode);
+//                if (newCellStyle == null) {
+//                    newCellStyle = newCell.getSheet().getWorkbook().createCellStyle();
+//                    newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
+//                    styleMap.put(stHashCode, newCellStyle);
+//                }
+//                newCell.setCellStyle(newCellStyle);
+//            }
+//        }
+//        newCell.setCellValue(getCellValue(oldCell));
+//    }
+//
+//    // 获取merge对象
+//    public static CellRangeAddress getMergedRegion(XSSFSheet sheet, int rowNum, short cellNum) {
+//        for (int i = 0; i < sheet.getNumMergedRegions(); i++) {
+//            CellRangeAddress merged = sheet.getMergedRegion(i);
+//            if (merged.isInRange(rowNum, cellNum)) {
+//                return merged;
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private static boolean isNewMergedRegion(CellRangeAddress newMergedRegion, List<CellRangeAddress> mergedRegions) {
+//        for (int i = 0; i < mergedRegions.size(); i++) {
+//            CellRangeAddress oldMergedRegion = mergedRegions.get(i);
+//            if (oldMergedRegion.getFirstRow() == newMergedRegion.getFirstRow() && oldMergedRegion.getFirstColumn() == newMergedRegion.getFirstColumn()) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
 
     public static String getCellValue(XSSFSheet sheet, String R1C1Addr) {
