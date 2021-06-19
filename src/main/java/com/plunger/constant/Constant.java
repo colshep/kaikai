@@ -21,7 +21,7 @@ public class Constant {
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         try {
             refresh();
         } catch (Exception e) {

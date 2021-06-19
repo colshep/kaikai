@@ -5,7 +5,6 @@ import com.plunger.api.CommonResult;
 import com.plunger.bean.plunger.Dict;
 import com.plunger.constant.Constant;
 import com.plunger.mapper.plunger.DictMapper;
-import com.plunger.util.DictUtil;
 import com.plunger.util.UUIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
