@@ -7,11 +7,14 @@ import com.plunger.util.ExcelUtil;
 import com.plunger.util.FileUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ooxml.POIXMLDocumentPart;
+import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTNonVisualPictureProperties;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTOfficeArtExtensionList;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPicture;
+import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPictureNonVisual;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -71,7 +74,7 @@ public class ExcelServiceImpl implements ExcelService {
                 return CommonResult.failed("未找到文件[" + saveFileName + "]");
             }
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
-            XSSFSheet dataSheet = workbook.getSheet(Constant.EXCEL.DATA.SHEETNAME);
+            XSSFSheet dataSheet = workbook.getSheet(Constant.EXCEL.DATA_SHEET_NAME);
             int count = 0;
             for (int i = dataSheet.getLastRowNum() + 1; i >= 25; i--) {
                 String wellName = ExcelUtil.getCellValue(dataSheet, "C" + i);
@@ -85,125 +88,51 @@ public class ExcelServiceImpl implements ExcelService {
             }
 
             if (count == 0) {
-                return CommonResult.failed("未在[" + Constant.EXCEL.DATA.SHEETNAME + "]sheet页找到有效组序");
+                return CommonResult.failed("未在[" + dataSheet.getSheetName() + "]sheet页找到有效组序");
             } else {
                 logger.info("获取到" + count + "组数据，开始分析数据");
             }
-
             XSSFFormulaEvaluator evaluator;
-            XSSFSheet changeSheet = workbook.getSheet(Constant.EXCEL.BASIC.SHEETNAME);
-            XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.PRINTCELLADDR);
-            XSSFCell yuanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.YUANCELLADDR);
-            XSSFCell fangCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.FANGCELLADDR);
-            XSSFCell wujinCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.WUJINCELLADDR);
-            XSSFCell baoguanCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.BAOGUANCELLADDR);
-            XSSFCell shuizhunCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.SHUIZHUNCELLADDR);
-            XSSFCell c15Cell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.C15CELLADDR);
-            XSSFCell c30Cell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.BASIC.C30CELLADDR);
-            String[] sheetNameWuTiaoJianArr = Constant.EXCEL.WUTIAOJIAN.SHEETNAMES.split(",");
-            String[] sheetNameYuanArr = Constant.EXCEL.YUAN.SHEETNAMES.split(",");
-            String[] sheetNameFangArr = Constant.EXCEL.FANG.SHEETNAMES.split(",");
-            String[] sheetNameWuJinArr = Constant.EXCEL.WUJIN.SHEETNAMES.split(",");
-            String[] sheetNameBaoGuanArr = Constant.EXCEL.BAOGUAN.SHEETNAMES.split(",");
-            String[] sheetNameShuizhunArr = Constant.EXCEL.SHUIZHUN.SHEETNAMES.split(",");
-            String[] sheetNameC15Arr = Constant.EXCEL.C15.SHEETNAMES.split(",");
-            String[] sheetNameC30Arr = Constant.EXCEL.C30.SHEETNAMES.split(",");
+            XSSFSheet changeSheet = workbook.getSheet(Constant.EXCEL.CONFIG_SHEET_NAME);
+            XSSFCell changeCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.CHANGE_CELL_ADDR);
             int originalSheetNum = workbook.getNumberOfSheets();
 
             for (int i = 1; i <= count; i++) {
-                printCell.setCellValue(i);
+                logger.info("============================================开始处理页码" + i);
+                XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.PRINT_CELL_ADDR);
+                changeCell.setCellValue(i);
                 evaluator = new XSSFFormulaEvaluator(workbook);
-//                evaluator.evaluateInCell(printCell);
                 evaluator.evaluateAll();
-
-
-                int yuanCount = new Double(yuanCell.getNumericCellValue()).intValue();
-                int fangCount = new Double(fangCell.getNumericCellValue()).intValue();
-                int wujinCount = new Double(wujinCell.getNumericCellValue()).intValue();
-                String baoguanFlag = baoguanCell.getStringCellValue();
-                int shuizhunCount = new Double(shuizhunCell.getNumericCellValue()).intValue();
-                String c15Flag = c15Cell.getStringCellValue();
-                String c30Flag = c30Cell.getStringCellValue();
-                logger.info("打印页码=" + i + "，圆=" + yuanCount + "，方=" + fangCount + "，无井=" + wujinCount +
-                        "，包管=" + baoguanFlag + "，水准=" + shuizhunCount + "，C15=" + c15Flag + "，C30=" + c30Flag);
                 List<Integer> resultSheetIndexList = new ArrayList<>();
-
-                for (String sheetName : sheetNameWuTiaoJianArr) {
-                    int index = workbook.getSheetIndex(sheetName);
-                    if (index == -1) {
-                        return CommonResult.failed("[sheetNameWuTiaoJianArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                    }
-                    resultSheetIndexList.add(index);
-                }
-
-                if (yuanCount > 0) {
-                    for (String sheetName : sheetNameYuanArr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameYuanArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
+                while (printCell != null) {
+                    XSSFRow row = printCell.getRow();
+                    String printCellValue = ExcelUtil.getCellValue(printCell);
+                    if ("1".equals(printCellValue)) {
+                        XSSFCell sheetNamesCell = row.getCell(printCell.getColumnIndex() + 1);
+                        String sheetNames = ExcelUtil.getCellValue(sheetNamesCell);
+                        if (!StringUtils.isEmpty(sheetNames)) {
+                            String[] sheetNamesArr = sheetNames.split(",");
+                            for (String sheetName : sheetNamesArr) {
+                                if (!StringUtils.isEmpty(sheetName)) {
+                                    int sheetIndex = workbook.getSheetIndex(sheetName);
+                                    if (sheetIndex == -1) {
+                                        String errorMsg = "无法找到名为[" + sheetName + "]的sheet页,请检查配置";
+                                        logger.info(errorMsg);
+                                        return CommonResult.failed(errorMsg);
+                                    } else {
+                                        resultSheetIndexList.add(sheetIndex);
+                                    }
+                                }
+                            }
                         }
-                        resultSheetIndexList.add(index);
+                    } else if (StringUtils.isEmpty(printCellValue)) {
+                        break;
                     }
-                }
-
-                if (fangCount > 0) {
-                    for (String sheetName : sheetNameFangArr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameFangArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
+                    XSSFRow nextRow = printCell.getSheet().getRow(row.getRowNum() + 1);
+                    if (nextRow == null) {
+                        break;
                     }
-                }
-
-                if (wujinCount > 0) {
-                    for (String sheetName : sheetNameWuJinArr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameWuJinArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
-                    }
-                }
-
-                if ("√".equals(baoguanFlag)) {
-                    for (String sheetName : sheetNameBaoGuanArr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameBaoGuanArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
-                    }
-                }
-
-                if (shuizhunCount > 8) {
-                    for (String sheetName : sheetNameShuizhunArr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameShuizhunArr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
-                    }
-                }
-
-                if ("√".equals(c15Flag)) {
-                    for (String sheetName : sheetNameC15Arr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameC15Arr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
-                    }
-                }
-
-                if ("√".equals(c30Flag)) {
-                    for (String sheetName : sheetNameC30Arr) {
-                        int index = workbook.getSheetIndex(sheetName);
-                        if (index == -1) {
-                            return CommonResult.failed("[sheetNameC30Arr]无法找到名为[" + sheetName + "]的sheet页,请检查配置");
-                        }
-                        resultSheetIndexList.add(index);
-                    }
+                    printCell = nextRow.getCell(printCell.getColumnIndex());
                 }
 
                 // 按照index对resultSheetIndexList进行排序
@@ -212,8 +141,10 @@ public class ExcelServiceImpl implements ExcelService {
                     int index = resultSheetIndexList.get(i1);
                     XSSFSheet oldSheet = workbook.getSheetAt(index);
                     String newSheetName = "组" + i + oldSheet.getSheetName();
+                    logger.info("=========================正在处理" + newSheetName);
                     ExcelUtil.cloneSheet(oldSheet, newSheetName);
                 }
+                logger.info("============================================页码" + i + "处理结束");
             }
 
             // 删除原来的sheet页
@@ -247,7 +178,6 @@ public class ExcelServiceImpl implements ExcelService {
                 workbook.setSheetOrder(sheetName, i);
             }
 
-
             workbook.setActiveSheet(0);
             workbook.getSheetAt(0).showInPane(0, 0);
             String filePath = FileUtil.getResultFilePath() + file.getName();
@@ -264,6 +194,100 @@ public class ExcelServiceImpl implements ExcelService {
             resultObj.put("resultFileName", file.getName());
             logger.info("转化成功，结果保存在[" + realFilePath + "]");
             return CommonResult.success(resultObj, "成功转化[" + count + "]组数据");
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("运行出错", e);
+            return CommonResult.failed("运行出错，请联系管理员。" + e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonResult resolve2(JSONObject paramObj) {
+        try {
+            String saveFileName = paramObj.optString("saveFileName");
+            String saveFilePath = FileUtil.getUploadPath() + saveFileName;
+            String saveRealFilePath = FileUtil.getAbsolutePath(saveFilePath);
+            File file = new File(saveRealFilePath);
+            if (file == null) {
+                return CommonResult.failed("未找到文件[" + saveFileName + "]");
+            }
+            XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
+            XSSFSheet pic = workbook.getSheet("图片");
+            XSSFDrawing drawing = pic.getDrawingPatriarch();
+            List<XSSFShape> shapeList = drawing.getShapes();
+            PackagePart packagePart = drawing.getPackagePart();
+            List<POIXMLDocumentPart> relations = drawing.getRelations();
+            for (XSSFShape shape : shapeList) {
+                if (shape instanceof XSSFPicture) {
+                    XSSFPicture picture = (XSSFPicture) shape;
+                    XSSFClientAnchor clientAnchor = picture.getClientAnchor();
+                    clientAnchor.getCol1();
+                    clientAnchor.getCol2();
+                    clientAnchor.getRow1();
+                    clientAnchor.getRow2();
+                }
+
+                String shapeName = shape.getShapeName();
+                XSSFAnchor anchor = shape.getAnchor();
+                int dx1 = anchor.getDx1();
+                int dx2 = anchor.getDx2();
+                int dy1 = anchor.getDy1();
+                int dy2 = anchor.getDy2();
+                System.out.println("shapeName= " + shapeName + ",dx1 = " + dx1 + ", dx2 = " + dx2 + ", dy1 = " + dy1 + ", dy2 = " + dy2);
+            }
+
+            XSSFSheet gsheet = workbook.getSheet("管垫隐");
+            XSSFDrawing gdrawing = gsheet.getDrawingPatriarch();
+            List<XSSFShape> gshapeList = gdrawing.getShapes();
+            for (XSSFShape shape : gshapeList) {
+                if (shape instanceof XSSFPicture) {
+                    XSSFPicture picture = (XSSFPicture) shape;
+                    CTPicture ctPicture = picture.getCTPicture();
+                    CTPictureNonVisual ctPictureNonVisual = ctPicture.getNvPicPr();
+                    CTNonVisualPictureProperties ctNonVisualPictureProperties = ctPictureNonVisual.getCNvPicPr();
+                    CTOfficeArtExtensionList ctOfficeArtExtensionList = ctNonVisualPictureProperties.getExtLst();
+//                    List<CTOfficeArtExtension> ctofficeArtExtensionList = ctOfficeArtExtensionList.getExtList();
+//                    for (CTOfficeArtExtension ctOfficeArtExtension : ctofficeArtExtensionList) {
+//                        ctOfficeArtExtension.getUri();
+//                    }
+//                    CTShapeProperties ctShapeProperties = ctPicture.getSpPr();
+                }
+                shape.getAnchor();
+            }
+            XSSFName xssfName = workbook.getNames("道路垫层").get(0);
+//            xssfName.setRefersToFormula("INDEX(图片!$B:$B,MATCH(IF(组1管垫隐!$X$5=1,图片!$A$4,IF(组1管垫隐!$X$6=1,图片!$A$3,图片!$A$2)),图片!$A:$A,0))");
+            int te = 123;
+
+            XSSFFormulaEvaluator evaluator;
+            for (int i = 1; i < 3; i++) {
+                evaluator = new XSSFFormulaEvaluator(workbook);
+                evaluator.evaluateAll();
+                XSSFSheet oldSheet = workbook.getSheet("管垫隐");
+                XSSFCell cell = ExcelUtil.getCell(oldSheet, "X5");
+                cell.setCellType(CellType.STRING);
+                cell.setCellValue((i - 1) + "");
+                String newSheetName = "组" + i + oldSheet.getSheetName();
+                ExcelUtil.cloneSheet(oldSheet, newSheetName);
+            }
+//            workbook.removeSheetAt(1);
+
+
+            workbook.setActiveSheet(0);
+            workbook.getSheetAt(0).showInPane(0, 0);
+            String filePath = FileUtil.getResultFilePath() + file.getName();
+            String realFilePath = FileUtil.getAbsolutePath(filePath);
+            File realFile = new File(realFilePath);
+            if (!realFile.getParentFile().exists()) {
+                realFile.getParentFile().mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(realFilePath);
+            workbook.write(out);
+            out.close();
+            workbook.close();
+            JSONObject resultObj = new JSONObject();
+            resultObj.put("resultFileName", file.getName());
+            logger.info("转化成功，结果保存在[" + realFilePath + "]");
+            return CommonResult.success(resultObj, "成功转化组数据");
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("运行出错", e);

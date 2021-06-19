@@ -1,7 +1,6 @@
 package com.plunger.constant;
 
 import com.plunger.service.DictService;
-import com.plunger.service.impl.ExcelServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,24 +33,11 @@ public class Constant {
     public static void refresh() throws Exception {
         FILEPATH.UPLOADPATH = dictService.findValueByTypeAndName("system", "uploadPath");
         FILEPATH.RESULTPATH = dictService.findValueByTypeAndName("system", "resultPath");
-        EXCEL.BASIC.SHEETNAME = dictService.findValueByTypeAndName("excel-basic", "sheetName");
-        EXCEL.BASIC.PRINTCELLADDR = dictService.findValueByTypeAndName("excel-basic", "printCellAddr");
-        EXCEL.BASIC.YUANCELLADDR = dictService.findValueByTypeAndName("excel-basic", "yuanCellAddr");
-        EXCEL.BASIC.FANGCELLADDR = dictService.findValueByTypeAndName("excel-basic", "fangCellAddr");
-        EXCEL.BASIC.WUJINCELLADDR = dictService.findValueByTypeAndName("excel-basic", "wujinCellAddr");
-        EXCEL.BASIC.BAOGUANCELLADDR = dictService.findValueByTypeAndName("excel-basic", "baoguanCellAddr");
-        EXCEL.BASIC.SHUIZHUNCELLADDR = dictService.findValueByTypeAndName("excel-basic", "shuizhunCellAddr");
-        EXCEL.BASIC.C15CELLADDR = dictService.findValueByTypeAndName("excel-basic", "c15CellAddr");
-        EXCEL.BASIC.C30CELLADDR = dictService.findValueByTypeAndName("excel-basic", "c30CellAddr");
-        EXCEL.DATA.SHEETNAME = dictService.findValueByTypeAndName("excel-data", "sheetName");
-        EXCEL.WUTIAOJIAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-wutiaojian", "sheetNames");
-        EXCEL.YUAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-yuan", "sheetNames");
-        EXCEL.FANG.SHEETNAMES = dictService.findValueByTypeAndName("excel-fang", "sheetNames");
-        EXCEL.WUJIN.SHEETNAMES = dictService.findValueByTypeAndName("excel-wujin", "sheetNames");
-        EXCEL.BAOGUAN.SHEETNAMES = dictService.findValueByTypeAndName("excel-baoguan", "sheetNames");
-        EXCEL.SHUIZHUN.SHEETNAMES = dictService.findValueByTypeAndName("excel-shuizhun", "sheetNames");
-        EXCEL.C15.SHEETNAMES = dictService.findValueByTypeAndName("excel-c15", "sheetNames");
-        EXCEL.C30.SHEETNAMES = dictService.findValueByTypeAndName("excel-c30", "sheetNames");
+
+        EXCEL.CHANGE_CELL_ADDR = dictService.findValueByTypeAndName("excel", "changeCellAddr");
+        EXCEL.CONFIG_SHEET_NAME = dictService.findValueByTypeAndName("excel", "configSheetName");
+        EXCEL.DATA_SHEET_NAME = dictService.findValueByTypeAndName("excel", "dataSheetName");
+        EXCEL.PRINT_CELL_ADDR = dictService.findValueByTypeAndName("excel", "printCellAddr");
     }
 
 
@@ -73,53 +59,10 @@ public class Constant {
     }
 
     public static final class EXCEL {
-        public static final class BASIC {
-            public static String SHEETNAME;
-            public static String PRINTCELLADDR;
-            public static String YUANCELLADDR;
-            public static String FANGCELLADDR;
-            public static String WUJINCELLADDR;
-            public static String BAOGUANCELLADDR;
-            public static String SHUIZHUNCELLADDR;
-            public static String C15CELLADDR;
-            public static String C30CELLADDR;
-        }
-
-        public static final class DATA {
-            public static String SHEETNAME;
-        }
-
-        public static final class WUTIAOJIAN {
-            public static String SHEETNAMES;
-        }
-
-        public static final class YUAN {
-            public static String SHEETNAMES;
-        }
-
-        public static final class FANG {
-            public static String SHEETNAMES;
-        }
-
-        public static final class WUJIN {
-            public static String SHEETNAMES;
-        }
-
-        public static final class BAOGUAN {
-            public static String SHEETNAMES;
-        }
-
-        public static final class SHUIZHUN {
-            public static String SHEETNAMES;
-        }
-
-        public static final class C15 {
-            public static String SHEETNAMES;
-        }
-
-        public static final class C30 {
-            public static String SHEETNAMES;
-        }
+        public static String CHANGE_CELL_ADDR;
+        public static String CONFIG_SHEET_NAME;
+        public static String DATA_SHEET_NAME;
+        public static String PRINT_CELL_ADDR;
     }
 
     public static final class FILEPATH {

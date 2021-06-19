@@ -8,4 +8,5 @@ public interface ExcelService {
 
     CommonResult upload(MultipartFile uploadFile);
     CommonResult resolve(JSONObject paramObj);
+    CommonResult resolve2(JSONObject paramObj);
 }

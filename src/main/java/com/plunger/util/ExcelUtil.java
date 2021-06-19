@@ -3,9 +3,11 @@ package com.plunger.util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.openxml4j.opc.*;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.PrintSetup;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +18,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ExcelUtil {
 
@@ -60,22 +58,81 @@ public class ExcelUtil {
         }
 
         // 复制打印区域
-        String[] printAreaArr = workbook.getPrintArea(workbook.getSheetIndex(source)).split("!");
-        workbook.setPrintArea(workbook.getSheetIndex(sheet), printAreaArr[1]);
+        String printArea = workbook.getPrintArea(workbook.getSheetIndex(source));
+        if (!StringUtils.isEmpty(printArea)) {
+            String[] printAreaArr = printArea.split("!");
+            workbook.setPrintArea(workbook.getSheetIndex(sheet), printAreaArr[1]);
+        }
 
         // 复制其他打印设置
-        clonePrintSetup(source, sheet);
-        if (sheet instanceof XSSFSheet) {
-            XSSFSheet xssfSheet = (XSSFSheet) sheet;
-            //After cloning the cloned sheet has relation to the same
-            //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
-            //This is wrong. So we need to repair.
-            ExcelUtil.repairCloningPrinterSettings(xssfSheet);
+        try {
+            clonePrintSetup(source, sheet);
+            if (sheet instanceof XSSFSheet) {
+                XSSFSheet xssfSheet = (XSSFSheet) sheet;
+                //After cloning the cloned sheet has relation to the same
+                //"/xl/printerSettings/printerSettings[N].bin" package part as the source sheet had.
+                //This is wrong. So we need to repair.
+                ExcelUtil.repairCloningPrinterSettings(xssfSheet);
+            }
+        } catch (Exception e) {
+            logger.error("复制打印区域出错", e);
         }
+
+        // 复制图片
+//        transferShape(source, sheet);
 
         workbook.setSheetName(workbook.getSheetIndex(sheet), newSheetName);
         sheet.setActiveCell(new CellAddress(0, 0));
     }
+
+    private static void transferShape (XSSFSheet sheet, XSSFSheet newSheet) {
+        XSSFDrawing drawing = sheet.createDrawingPatriarch();
+
+        for(XSSFShape shape : drawing.getShapes()) {
+            if(shape instanceof XSSFPicture) {
+                transferPicture(shape, newSheet);
+            }
+        }
+    }
+
+    private static void transferPicture(XSSFShape shape, XSSFSheet newSheet) {
+        XSSFPicture picture = (XSSFPicture) shape;
+
+        XSSFPictureData xssfPictureData = picture.getPictureData();
+        XSSFClientAnchor anchor = (XSSFClientAnchor) shape.getAnchor();
+
+        int col1 = anchor.getCol1();
+        int col2 = anchor.getCol2();
+        int row1 = anchor.getRow1() + 5;
+        int row2 = anchor.getRow2() + 5;
+
+        int x1 = anchor.getDx1();
+        int x2 = anchor.getDx2();
+        int y1 = anchor.getDy1();
+        int y2 = anchor.getDy2();
+
+        XSSFWorkbook newWb = newSheet.getWorkbook();
+        XSSFCreationHelper newHelper = newWb.getCreationHelper();
+        XSSFDrawing newDrawing = newSheet.createDrawingPatriarch();
+        XSSFClientAnchor newAnchor = newHelper.createClientAnchor();
+
+        // Row / Column placement.
+        newAnchor.setCol1(col1);
+        newAnchor.setCol2(col2);
+        newAnchor.setRow1(row1);
+        newAnchor.setRow2(row2);
+
+        // Fine touch adjustment along the XY coordinate.
+        newAnchor.setDx1(x1);
+        newAnchor.setDx2(x2);
+        newAnchor.setDy1(y1);
+        newAnchor.setDy2(y2);
+
+        int newPictureIndex = newWb.addPicture(xssfPictureData.getData(), xssfPictureData.getPictureType());
+
+        XSSFPicture newPicture = newDrawing.createPicture(newAnchor, newPictureIndex);
+    }
+
 
 //    public static void copySheets(XSSFSheet newSheet, XSSFSheet sheet, boolean copyStyle) throws Exception {
 //        int maxColumnNum = 0;
