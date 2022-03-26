@@ -85,11 +85,11 @@ public class ExcelUtil {
         sheet.setActiveCell(new CellAddress(0, 0));
     }
 
-    private static void transferShape (XSSFSheet sheet, XSSFSheet newSheet) {
+    private static void transferShape(XSSFSheet sheet, XSSFSheet newSheet) {
         XSSFDrawing drawing = sheet.createDrawingPatriarch();
 
-        for(XSSFShape shape : drawing.getShapes()) {
-            if(shape instanceof XSSFPicture) {
+        for (XSSFShape shape : drawing.getShapes()) {
+            if (shape instanceof XSSFPicture) {
                 transferPicture(shape, newSheet);
             }
         }
@@ -305,12 +305,21 @@ public class ExcelUtil {
         return cellValue;
     }
 
+    public static String getCellValue(XSSFWorkbook workbook, String sheetName, String R1C1Addr) {
+        XSSFCell cell = ExcelUtil.getCell(workbook, sheetName, R1C1Addr);
+        return getCellValue(cell);
+    }
+
 
     public static XSSFCell getCell(XSSFSheet sheet, String R1C1Addr) {
         int[] addrNumArr = resloveR1C1Addr(R1C1Addr);
         XSSFRow row = sheet.getRow(addrNumArr[0] - 1);
         XSSFCell cell = row.getCell(addrNumArr[1] - 1);
         return cell;
+    }
+
+    public static XSSFCell getCell(XSSFWorkbook workbook, String sheetName, String R1C1Addr) {
+        return getCell(workbook.getSheet(sheetName), R1C1Addr);
     }
 
     public static int[] resloveR1C1Addr(String R1C1Addr) {
@@ -343,6 +352,25 @@ public class ExcelUtil {
             res += Math.pow(26, addrArr.length - i - 1) * a;
         }
         return res;
+    }
+
+    public static String getR1C1Addr(XSSFCell cell) {
+        return buildR1C1Addr(cell.getColumnIndex(), cell.getRowIndex());
+    }
+
+    public static String buildR1C1Addr(int colIndex, int rowIndex) {
+        return NumToR1C1(colIndex + 1) + (rowIndex + 1);
+    }
+
+    public static String NumToR1C1(int num) {
+        int temp;
+        String letter = "";
+        while (num > 0) {
+            temp = (num - 1) % 26;
+            letter = (char) (temp + 65) + letter;
+            num = (num - temp - 1) / 26;
+        }
+        return letter;
     }
 
     //method to transfer InputStream to OutputStream
@@ -438,19 +466,28 @@ public class ExcelUtil {
 
     public static void main(String[] args) {
         // A=26^0*1=1
-        System.out.println("A=" + R1C1ToNum("A"));
+        System.out.println("R1C1ToNum---A=" + R1C1ToNum("A"));
         // Z=26^0*26=26
-        System.out.println("Z=" + R1C1ToNum("Z"));
+        System.out.println("R1C1ToNum---Z=" + R1C1ToNum("Z"));
         // AA=26^1*1+1=27
-        System.out.println("AA=" + R1C1ToNum("AA"));
+        System.out.println("R1C1ToNum---AA=" + R1C1ToNum("AA"));
         // AZ=26^1*1+26=52
-        System.out.println("AZ=" + R1C1ToNum("AZ"));
+        System.out.println("R1C1ToNum---AZ=" + R1C1ToNum("AZ"));
         // ZA=26^1*26+1=677
-        System.out.println("ZA=" + R1C1ToNum("ZA"));
+        System.out.println("R1C1ToNum---ZA=" + R1C1ToNum("ZA"));
         // AAA=26^2*1+26^1*1+26^0*1=703
-        System.out.println("AAA=" + R1C1ToNum("AAA"));
+        System.out.println("R1C1ToNum---AAA=" + R1C1ToNum("AAA"));
+
+        System.out.println("NumToR1C1---1=" + NumToR1C1(1));
+        System.out.println("NumToR1C1---26=" + NumToR1C1(26));
+        System.out.println("NumToR1C1---27=" + NumToR1C1(27));
+        System.out.println("NumToR1C1---52=" + NumToR1C1(52));
+        System.out.println("NumToR1C1---677=" + NumToR1C1(677));
+        System.out.println("NumToR1C1---703=" + NumToR1C1(703));
 
         System.out.println("resloveR1C1Addr(A1): row=" + resloveR1C1Addr("A1")[0] + ",col=" + resloveR1C1Addr("A1")[1]);
         System.out.println("resloveR1C1Addr(Z22): row=" + resloveR1C1Addr("Z22")[0] + ",col=" + resloveR1C1Addr("Z22")[1]);
+
+
     }
 }
