@@ -96,7 +96,7 @@ public class ExcelServiceImpl implements ExcelService {
             int originalSheetNum = workbook.getNumberOfSheets();
 
             // 捕获所有随机值公式
-            logger.info("============================================捕获所有随机值公式");
+            logger.info("捕获所有随机值公式");
             Map<String, String> randMap = new HashMap<>();
             List<String> randList = new ArrayList<>();
             for (int i = 0; i <= originalSheetNum - 1; i++) {
@@ -121,7 +121,7 @@ public class ExcelServiceImpl implements ExcelService {
             }
 
             for (int i = 1; i <= count; i++) {
-                logger.info("============================================开始处理页码" + i);
+                logger.info("============================================开始处理组" + i);
 
                 // 设置当前打印组序
                 XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.PRINT_CELL_ADDR);
@@ -129,22 +129,28 @@ public class ExcelServiceImpl implements ExcelService {
                 evaluator = new XSSFFormulaEvaluator(workbook);
 
                 // 按照先后顺序赋值所有随机值
-                logger.info("============================================重新赋值随机值");
+                logger.info("重新赋值随机值");
+//                XSSFCell tempCell = ExcelUtil.getCell(dataSheet, "A1");
+//                if (tempCell == null) {
+//                    tempCell = dataSheet.getRow(0).createCell(0);
+//                }
                 for (String key : randList) {
                     String[] keyArr = key.split("-");
                     String sheetName = keyArr[0];
                     String R1C1Addr = keyArr[1];
+//                    tempCell.setCellFormula(randMap.get(key));
+//                    CellValue cellValue = evaluator.evaluate(tempCell);
                     XSSFCell cell = ExcelUtil.getCell(workbook, sheetName, R1C1Addr);
-                    cell.setCellType(CellType.FORMULA);
                     cell.setCellFormula(randMap.get(key));
                     CellValue cellValue = evaluator.evaluate(cell);
-                    cell.removeFormula();
-                    cell.setCellType(CellType.NUMERIC);
+                    if (!CellType.NUMERIC.equals(cell.getCellType())) {
+                        cell.setCellType(CellType.NUMERIC);
+                    }
                     cell.setCellValue(cellValue.getNumberValue());
                 }
 
                 // 重新运算所有公式
-                logger.info("============================================重新运算所有公式");
+                logger.info("重新运算所有公式");
                 evaluator.evaluateAll();
 
                 // 筛选需要打印sheet页的index
@@ -188,10 +194,10 @@ public class ExcelServiceImpl implements ExcelService {
                     int index = resultSheetIndexList.get(i1);
                     XSSFSheet oldSheet = workbook.getSheetAt(index);
                     String newSheetName = "组" + i + oldSheet.getSheetName();
-                    logger.info("=========================正在处理" + newSheetName);
+                    logger.info("正在处理" + newSheetName);
                     ExcelUtil.cloneSheet(oldSheet, newSheetName);
                 }
-                logger.info("============================================页码" + i + "处理结束");
+                logger.info("============================================组" + i + "处理结束");
             }
 
             // 删除原来的sheet页
