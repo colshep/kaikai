@@ -74,11 +74,15 @@ public class ExcelServiceImpl implements ExcelService {
                 return CommonResult.failed("未找到文件[" + saveFileName + "]");
             }
             XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
+
+            // 获取组数
             XSSFSheet dataSheet = workbook.getSheet(Constant.EXCEL.DATA_SHEET_NAME);
             int count = 0;
             for (int i = dataSheet.getLastRowNum() + 1; i >= 25; i--) {
+                // step1.获取C列最后一个井号
                 String wellName = ExcelUtil.getCellValue(dataSheet, "C" + i);
                 if (!StringUtils.isEmpty(wellName)) {
+                    // step2.获取A列最后一个组序
                     String indexName = ExcelUtil.getCellValue(dataSheet, "A" + i);
                     if (!StringUtils.isEmpty(indexName)) {
                         count = new Integer(indexName);
@@ -86,12 +90,13 @@ public class ExcelServiceImpl implements ExcelService {
                     }
                 }
             }
-
             if (count == 0) {
                 return CommonResult.failed("未在[" + dataSheet.getSheetName() + "]sheet页找到有效组序");
             } else {
                 logger.info("获取到" + count + "组数据，开始分析数据");
             }
+
+            // 获取打印页码单元格
             XSSFFormulaEvaluator evaluator;
             XSSFSheet changeSheet = workbook.getSheet(Constant.EXCEL.CONFIG_SHEET_NAME);
             XSSFCell changeCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.CHANGE_CELL_ADDR);
@@ -99,10 +104,16 @@ public class ExcelServiceImpl implements ExcelService {
 
             for (int i = 1; i <= count; i++) {
                 logger.info("============================================开始处理页码" + i);
+
+                // 设置当前打印组序
                 XSSFCell printCell = ExcelUtil.getCell(changeSheet, Constant.EXCEL.PRINT_CELL_ADDR);
                 changeCell.setCellValue(i);
+
+                // 重新运算所有公式
                 evaluator = new XSSFFormulaEvaluator(workbook);
                 evaluator.evaluateAll();
+
+                // 筛选需要打印sheet页的index
                 List<Integer> resultSheetIndexList = new ArrayList<>();
                 while (printCell != null) {
                     XSSFRow row = printCell.getRow();
@@ -137,6 +148,8 @@ public class ExcelServiceImpl implements ExcelService {
 
                 // 按照index对resultSheetIndexList进行排序
                 Collections.sort(resultSheetIndexList);
+
+                // 复制sheet页
                 for (int i1 = 0; i1 < resultSheetIndexList.size(); i1++) {
                     int index = resultSheetIndexList.get(i1);
                     XSSFSheet oldSheet = workbook.getSheetAt(index);
