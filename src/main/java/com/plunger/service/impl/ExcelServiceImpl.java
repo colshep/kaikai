@@ -107,6 +107,10 @@ public class ExcelServiceImpl implements ExcelService {
                         continue;
                     }
                     for (int k = row.getFirstCellNum(); k <= row.getLastCellNum(); k++) {
+                        if (k == -1) {
+                            continue;
+                        }
+//                        logger.info("i=" + i + ",j=" + j + ",k=" + k);
                         XSSFCell cell = row.getCell(k);
                         if (cell != null && CellType.FORMULA == cell.getCellType()) {
                             String formualStr = cell.getCellFormula();
