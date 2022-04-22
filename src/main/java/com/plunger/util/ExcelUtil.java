@@ -38,21 +38,7 @@ public class ExcelUtil {
                 if (cell != null && CellType.FORMULA == cell.getCellType()) {
                     XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(cell.getSheet().getWorkbook());
                     CellValue cellValue = evaluator.evaluate(cell);
-                    CellType cellType = cellValue.getCellType();
-                    cell.setCellType(cellType);
-
-                    if (cellType == CellType.STRING) {
-                        cell.setCellValue(cellValue.getStringValue());
-                    } else if (cellType == CellType.BOOLEAN) {
-                        cell.setCellValue(cellValue.getBooleanValue());
-                    } else if (cellType == CellType.NUMERIC) {
-                        cell.setCellValue(cellValue.getNumberValue());
-                    } else if (cellType == CellType.ERROR) {
-                        cell.setCellValue("ERROR" + cellValue.getErrorValue());
-                        String msg = "解析公式失败,sheet=" + newSheetName + ",row=" + (i + 1) + ",col=" + (j + 1);
-                        logger.error(msg);
-//                        throw new Exception(msg);
-                    }
+                    ExcelUtil.setCellValue(cell, cellValue);
                 }
             }
         }
@@ -462,6 +448,22 @@ public class ExcelUtil {
             }
         }
 //        System.out.println("clonePrintSetup finish");
+    }
+
+    public static void setCellValue(XSSFCell cell, CellValue cellValue) {
+        CellType cellType = cellValue.getCellType();
+        cell.setCellType(cellType);
+        if (cellType == CellType.STRING) {
+            cell.setCellValue(cellValue.getStringValue());
+        } else if (cellType == CellType.BOOLEAN) {
+            cell.setCellValue(cellValue.getBooleanValue());
+        } else if (cellType == CellType.NUMERIC) {
+            cell.setCellValue(cellValue.getNumberValue());
+        } else if (cellType == CellType.ERROR) {
+            cell.setCellValue("ERROR" + cellValue.getErrorValue());
+            String msg = "解析公式失败,sheet=" + cell.getSheet().getSheetName() + ",row=" + (cell.getRowIndex() + 1) + ",col=" + (cell.getColumnIndex() + 1);
+            logger.error(msg);
+        }
     }
 
     public static void main(String[] args) {

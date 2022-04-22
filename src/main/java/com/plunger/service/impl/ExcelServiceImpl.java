@@ -147,10 +147,11 @@ public class ExcelServiceImpl implements ExcelService {
                     XSSFCell cell = ExcelUtil.getCell(workbook, sheetName, R1C1Addr);
                     cell.setCellFormula(randMap.get(key));
                     CellValue cellValue = evaluator.evaluate(cell);
-                    if (!CellType.NUMERIC.equals(cell.getCellType())) {
-                        cell.setCellType(CellType.NUMERIC);
-                    }
-                    cell.setCellValue(cellValue.getNumberValue());
+                    ExcelUtil.setCellValue(cell, cellValue);
+//                    if (!CellType.NUMERIC.equals(cell.getCellType())) {
+//                        cell.setCellType(CellType.NUMERIC);
+//                    }
+//                    cell.setCellValue(cellValue.getNumberValue());
                 }
 
                 // 重新运算所有公式
