@@ -115,7 +115,7 @@ public class ExcelServiceImpl implements ExcelService {
                         if (cell != null && CellType.FORMULA == cell.getCellType()) {
                             String formualStr = cell.getCellFormula();
                             if (formualStr.indexOf("RAND(") > -1 || formualStr.indexOf("RANDBETWEEN(") > -1) {
-                                String key = sheet.getSheetName() + "-" + cell.getAddress().formatAsString();
+                                String key = sheet.getSheetName() + "@@" + cell.getAddress().formatAsString();
                                 randMap.put(key, formualStr);
                                 randList.add(key);
                             }
@@ -139,7 +139,7 @@ public class ExcelServiceImpl implements ExcelService {
 //                    tempCell = dataSheet.getRow(0).createCell(0);
 //                }
                 for (String key : randList) {
-                    String[] keyArr = key.split("-");
+                    String[] keyArr = key.split("@@");
                     String sheetName = keyArr[0];
                     String R1C1Addr = keyArr[1];
 //                    tempCell.setCellFormula(randMap.get(key));
@@ -286,7 +286,7 @@ public class ExcelServiceImpl implements ExcelService {
                     if (cell != null && CellType.FORMULA == cell.getCellType()) {
                         String formualStr = cell.getCellFormula();
                         if (formualStr.indexOf("RAND(") == 0 || formualStr.indexOf("RANDBETWEEN(") == 0) {
-                            randMap.put(sheet.getSheetName() + "-" + ExcelUtil.getR1C1Addr(cell), formualStr);
+                            randMap.put(sheet.getSheetName() + "@@" + ExcelUtil.getR1C1Addr(cell), formualStr);
                             XSSFFormulaEvaluator evaluator = new XSSFFormulaEvaluator(cell.getSheet().getWorkbook());
                             CellValue cellValue = evaluator.evaluate(cell);
                             double value = cellValue.getNumberValue();
