@@ -385,8 +385,21 @@ public class ExcelUtil {
                 i--;
             }
             int idx = Integer.valueOf(sourcePartName.substring(i));
-            idx++;
-            destinationPartName = sourcePartName.substring(0, i) + idx + "." + sourcePartNameExtension;
+            
+            // 循环查找一个不存在的part名称，避免PartAlreadyExistsException
+            String basePartName = sourcePartName.substring(0, i);
+            boolean partExists = true;
+            while (partExists) {
+                idx++;
+                destinationPartName = basePartName + idx + "." + sourcePartNameExtension;
+                try {
+                    PackagePartName testPartName = PackagingURIHelper.createPartName(destinationPartName);
+                    // 检查该part是否已存在
+                    partExists = oPCPackage.containPart(testPartName);
+                } catch (Exception e) {
+                    partExists = false;
+                }
+            }
         }
         PackagePartName partName = PackagingURIHelper.createPartName(destinationPartName);
         PackagePart destinationPart = oPCPackage.createPart(partName, contentType);
