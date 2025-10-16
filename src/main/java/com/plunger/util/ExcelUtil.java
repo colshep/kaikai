@@ -25,6 +25,8 @@ public class ExcelUtil {
 
     public static void cloneSheet(XSSFSheet source, String newSheetName) throws Exception {
         XSSFWorkbook workbook = source.getWorkbook();
+        // 注意：这里会触发 POI 的警告 "Cloning sheets with page setup is not yet supported"
+        // 这是预期的，因为我们会在后面通过 repairCloningPrinterSettings 方法手动修复打印设置
         XSSFSheet sheet = workbook.cloneSheet(workbook.getSheetIndex(source));
 
         for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {
